@@ -1,21 +1,13 @@
-﻿using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
+﻿using SocialMedia.Constant;
+using SocialMedia.Model.EntityModel;
 
 namespace SocialMedia.Model.BusinessModel
 {
-    public class UserBobj
+    public class UserBObj : User
     {
-        public int Id { get; set; }
-        public string? UserName { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public GenderType Gender { get; set; }
-        public MaritalStatusType MaritalStatus { get; set; }
-        public string? Place { get; set; }
-        public string? Education { get; set; }
-        public string? Occupation { get; set; }
-        public List<PollPostBobj>? PollPosts;
-        public List<TextPostBobj>? TextPosts;
+        public List<PollPostBObj>? PollPosts;
+        public List<TextPostBObj>? TextPosts;
+        public List<string> FollowersId;
+        public List<string> FollowingsId;
     }
 }

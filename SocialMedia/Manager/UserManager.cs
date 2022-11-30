@@ -1,59 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using SocialMedia.DataSet;
+﻿using SocialMedia.DataSet;
 using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.View;
 
 namespace SocialMedia.Manager
 {
     public sealed class UserManager
     {
-        private static UserManager? userManager = null;
+        private static UserManager userManager = null;
         private static readonly object padlock = new object();
 
-        UserManager()
+        private UserManager()
         {
         }
 
-        public static UserManager GetUserManager()
+        public static UserManager Instance
         {
-            if (userManager == null)
+            get
             {
-                lock (padlock)
+                if (userManager == null)
                 {
-                    if (userManager == null)
+                    lock (padlock)
                     {
-                        userManager = new UserManager();
+                        if (userManager == null)
+                        {
+                            userManager = new UserManager();
+                        }
                     }
                 }
+                return userManager;
             }
-            return userManager;
         }
-        
-        IUserSet userSet = new UserSet();
-        TextPostManager textPostManager = TextPostManager.GetTextPostManager();
-        PollPostManager pollPostManager = PollPostManager.GetPollPostManager();
 
-        public List<UserBobj> GetUserBobjs()
+        IUserSet userSet = new UserSet();
+        IFollowerFollowingSet followerFollowingSet = new FollowerFollowingSet();
+        TextPostManager textPostManager = TextPostManager.Instance;
+        PollPostManager pollPostManager = PollPostManager.Instance;
+
+
+        public List<UserBObj> GetUserBObjs()
         {
-            List<UserBobj> userBobjs = new List<UserBobj>();
-            List<TextPostBobj> textPosts = textPostManager.GetTextPostBobjs();
-            List<PollPostBobj> pollPosts = pollPostManager.GetPollPostBobjs();
+            List<UserBObj> userBobjs = new List<UserBObj>();
+            List<TextPostBObj> textPosts = textPostManager.GetTextPostBobjs();
+            List<PollPostBObj> pollPosts = pollPostManager.GetPollPostBobjs();
+            List<FollowerFollowing> followerFollowing = followerFollowingSet.GetFollowerFollowingList();
             List<User> users = userSet.RetrieveUsers();
-            UserBobj userBobj;
+            UserBObj userBobj;
 
             for(int i = 0; i < users.Count; i++)
             {
-                userBobj = new UserBobj();
+                userBobj = new UserBObj();
                 var userTextPostBobjs = textPosts.Where((textPost) => textPost.PostedBy == users[i].Id).ToList();
                 var userPollPostBobjs = pollPosts.Where((pollPost) => pollPost.PostedBy == users[i].Id).ToList();
+                var followersId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowingId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
+                var followingsId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowerId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
+
                 
                 userBobj.Id = users[i].Id;
                 userBobj.UserName = users[i].UserName;
@@ -67,6 +68,8 @@ namespace SocialMedia.Manager
                 userBobj.Place = users[i].Place;
                 userBobj.TextPosts = userTextPostBobjs;
                 userBobj.PollPosts = userPollPostBobjs;
+                userBobj.FollowersId = followersId;
+                userBobj.FollowingsId = followingsId;
 
                 userBobjs.Add(userBobj);
             }
@@ -79,28 +82,42 @@ namespace SocialMedia.Manager
             userSet.AddUser(user);
         }
 
-        public void RemoveUser(UserBobj userBobj)
+        public void RemoveUser(UserBObj userBObj)
         {
-            userSet.RemoveUser(userBobj.Id);
+            userSet.RemoveUser(userBObj.Id);
         }
 
-        public UserBobj? GetUserBobj(int userId)
+        public UserBObj? GetUserBobj(string userId)
         {
             var user = userSet.RetrieveUsers().SingleOrDefault(user => user.Id == userId);
             if(user != null)
             {
-                var textPosts = TextPostManager.GetTextPostManager().GetTextPostBobjs().Where(textPostBobj => textPostBobj.PostedBy == user.Id).ToList();
-                var pollPosts = PollPostManager.GetPollPostManager().GetPollPostBobjs().Where(pollPost => pollPost.PostedBy == user.Id).ToList();
-                var userBobj = ConvertModelToBobj(user, textPosts, pollPosts);
+                var textPosts = TextPostManager.Instance.GetTextPostBobjs().Where(textPostBObj => textPostBObj.PostedBy == user.Id).ToList();
+                var pollPosts = PollPostManager.Instance.GetPollPostBobjs().Where(pollPost => pollPost.PostedBy == user.Id).ToList();
+                var followersId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowingId == userId).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
+                var followingsId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowerId == userId).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
+                var userBobj = ConvertModelToBObj(user, textPosts, pollPosts, followersId, followingsId);
 
                 return userBobj;
             }
             return null;
         }
 
-        public UserBobj ConvertModelToBobj(User user, List<TextPostBobj> textPosts, List<PollPostBobj> pollPosts)
+        public UserBObj GetNonNullUserBObj(string userId)
         {
-            var userBobj = new UserBobj();
+            var user = userSet.RetrieveUsers().Single(user => user.Id == userId);
+            var textPosts = TextPostManager.Instance.GetTextPostBobjs().Where(textPostBobj => textPostBobj.PostedBy == user.Id).ToList();
+            var pollPosts = PollPostManager.Instance.GetPollPostBobjs().Where(pollPost => pollPost.PostedBy == user.Id).ToList();
+            var followersId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowingId == userId).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
+            var followingsId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowerId == userId).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
+            var userBobj = ConvertModelToBObj(user, textPosts, pollPosts, followersId, followingsId);
+
+            return userBobj;
+        }
+
+        public UserBObj ConvertModelToBObj(User user, List<TextPostBObj> textPosts, List<PollPostBObj> pollPosts, List<string> followersId, List<string> followingsId)
+        {
+            var userBobj = new UserBObj();
             userBobj.Id = user.Id;
             userBobj.UserName = user.UserName;
             userBobj.FirstName = user.FirstName;
@@ -113,22 +130,41 @@ namespace SocialMedia.Manager
             userBobj.Place = user.Place;
             userBobj.TextPosts = textPosts;
             userBobj.PollPosts = pollPosts;
+            userBobj.FollowersId = followersId;
+            userBobj.FollowingsId = followingsId;
 
             return userBobj;
         }
-        public UserBobj? GetUserBobj(string userName)
+        public UserBObj? GetUserBObjWithoutId(string userIdentifyingValue)
         {
-            var user = userSet.RetrieveUsers().SingleOrDefault(user => user.UserName == userName);
+            var user = userSet.RetrieveUsers().SingleOrDefault(user => user.UserName == userIdentifyingValue || user.MailId == userIdentifyingValue || user.PhoneNumber == userIdentifyingValue);
             if(user != null)
             {
-                var textPosts = TextPostManager.GetTextPostManager().GetTextPostBobjs().Where(textPostBobj => textPostBobj.PostedBy == user.Id).ToList();
-                var pollPosts = PollPostManager.GetPollPostManager().GetPollPostBobjs().Where(pollPost => pollPost.PostedBy == user.Id).ToList();
-                var userBobj = ConvertModelToBobj(user, textPosts, pollPosts);
+                var textPosts = TextPostManager.Instance.GetTextPostBobjs().Where(textPostBobj => textPostBobj.PostedBy == user.Id).ToList();
+                var pollPosts = PollPostManager.Instance.GetPollPostBobjs().Where(pollPost => pollPost.PostedBy == user.Id).ToList();
+                var followersId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowingId == user.Id).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
+                var followingsId = followerFollowingSet.GetFollowerFollowingList().Where(_followerFollowing => _followerFollowing.FollowerId == user.Id).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
+                var userBobj = ConvertModelToBObj(user, textPosts, pollPosts, followersId, followingsId);
 
                 return userBobj;
             }
             return null;
 
+        }
+
+        public void Unfollow(string viewingUserId, string searchedUserId) 
+        {
+            var followerFollowing = followerFollowingSet.GetFollowerFollowingList().Single(ff => ff.FollowerId == viewingUserId && ff.FollowingId == searchedUserId);
+            followerFollowingSet.RemoveFollowerFollowing(followerFollowing);
+
+        }
+
+        public void Follow(string viewingUserId, string searchedUserId)
+        {
+            var followerFollowing = new FollowerFollowing();
+            followerFollowing.FollowerId = viewingUserId;
+            followerFollowing.FollowingId = searchedUserId;
+            followerFollowingSet.AddFollowerFollowing(followerFollowing);
         }
     }
 }

@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocialMedia.Model.EntityModel.EnumTypes
+namespace SocialMedia.Constant
 {
-    public enum ReactedOnType
+    public enum Gender
     {
-        TextPost = 1,
-        PollPost,
-        Comment
+        Male = 1,
+        Female,
+        DontSpecify
     }
 }

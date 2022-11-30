@@ -1,34 +1,53 @@
-﻿using SocialMedia.DataSet;
-using SocialMedia.Manager;
+﻿using SocialMedia.Manager;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.Controller
 {
     //pollChoice editing  is not yet done ...
     public class PollPostController
     {
+        private static readonly object _lock = new object();
+        private static PollPostController _instance;
+
         PollPostPage _pollPostPage;
-        UserBobj _user;
+        UserBObj _user;
         Action _BackToPostController;
 
-        PollPostManager _pollPostManager = PollPostManager.GetPollPostManager();
-        PollChoiceManager _pollChoiceManager = PollChoiceManager.GetPollPostManager();
+        PollPostManager _pollPostManager = PollPostManager.Instance;
 
-        public PollPostController(Action BackToPostController, UserBobj user)
+        private PollPostController()
+        {
+
+        }
+
+        public static PollPostController GetInstance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new PollPostController();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+        public void Initialize(Action BackToPostController)
         {
             _BackToPostController = BackToPostController;
-            _user = user;
             _pollPostPage = new PollPostPage();
+            InitiatePollPostController();
         }
 
         public void InitiatePollPostController()
         {
+            _user = ApplicationController.user;
             var userChoice = _pollPostPage.InitiatePollPostPage();
             
             switch (userChoice) 
@@ -50,29 +69,23 @@ namespace SocialMedia.Controller
 
         public void CreatePost()
         {
-            var lastPostId = _pollPostManager.GetLastPostId();
             (string title, string Question, DateTime createdAt, List<string> options) postContent = _pollPostPage.CreatePostView();
-            PollPostBobj pollPost = new PollPostBobj();
-            pollPost.Id = lastPostId + 1;
+            PollPostBObj pollPost = new PollPostBObj();
             pollPost.Title = postContent.title;
             pollPost.Question = postContent.Question;
             pollPost.CreatedAt = postContent.createdAt;
             pollPost.PostedBy = _user.Id;
 
-            var lastPollChoiceId = _pollChoiceManager.GetLastPollChoiceId();
-            List<PollChoiceBobj> pollChoiceBobjList = new List<PollChoiceBobj>();
+            List<PollChoiceBObj> pollChoiceBobjList = new List<PollChoiceBObj>();
             for(int i = 0; i < postContent.options.Count; i++)
             {
-                PollChoiceBobj pollChoice = new PollChoiceBobj();
-
-                pollChoice.Id = lastPollChoiceId + 1;
+                PollChoiceBObj pollChoice = new PollChoiceBObj();
                 pollChoice.PostId = pollPost.Id;
                 pollChoice.Choice = postContent.options[i];
                 pollChoiceBobjList.Add(pollChoice);
 
             }
             pollPost.choices = pollChoiceBobjList;
-            //_pollChoiceManager.AddPollChoices(pollChoiceBobjList);
             _pollPostManager.AddPollPost(pollPost);
             if(_user.PollPosts != null)
                 _user.PollPosts.Add(pollPost);
@@ -83,6 +96,7 @@ namespace SocialMedia.Controller
 
         public void EditPost()
         {
+
             if(_user.PollPosts != null && _user.PollPosts.Count > 0)
             {
                 var selectedPollPost = _pollPostPage.GetUserSelectedPostToEdit(_user.PollPosts);

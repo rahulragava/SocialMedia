@@ -1,5 +1,5 @@
-﻿using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
+﻿using SocialMedia.Constant;
+using SocialMedia.Model.EntityModel;
 using SocialMedia.View;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,7 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.BusinessModel
 {
-    public class ReactionBobj
+    public class ReactionBObj : Reaction
     {
-        public int Id { get; set; }
-        public int ReactedBy { get; set; }
-        public int ReactionOnId { get; set; }
-        public ReactionType reactionType { get; set; }
-        public ReactedOnType ReactionOnType { get; set; }
     }
 }

@@ -1,27 +1,47 @@
-﻿using SocialMedia.Model.BusinessModel;
-using SocialMedia.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SocialMedia.View;
+
 
 namespace SocialMedia.Controller
 {
     public class PostController
     {
-        UserBobj _user;
-        readonly PostPage _postPage;
+        private static readonly object _lock = new object();
+        private static PostController _instance;
+        PostPage _postPage;
         PollPostController _pollPostController;
         TextPostController _textPostController;
         Action _BackToHomePageController;
 
-        public PostController(UserBobj user, Action BackToHomePageController)
+        private PostController()
         {
-            _user = user;
-            _postPage = new PostPage();
-            _BackToHomePageController = BackToHomePageController;
+
         }
+
+        public static PostController GetInstance
+        {
+            get
+            {
+                if(_instance == null )
+                {
+                    lock (_lock)
+                    {
+                        if(_instance == null)
+                        {
+                            _instance = new PostController();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        public void Initialize(Action BackToHomePageController)
+        {
+            _BackToHomePageController = BackToHomePageController;
+            _postPage = new PostPage();
+            InitiatePostController();
+        }
+        
 
         public void InitiatePostController()
         {
@@ -31,12 +51,13 @@ namespace SocialMedia.Controller
             switch (userChoice)
             {
                 case 1:
-                    _pollPostController = new PollPostController(initiatePostController,_user);
-                    _pollPostController.InitiatePollPostController();
+                    _pollPostController = PollPostController.GetInstance;
+                    _pollPostController.Initialize(initiatePostController);
                     break;
                 case 2:
-                    _textPostController = new TextPostController(initiatePostController, _user);
-                    _textPostController.InitiateTextPostController();
+                    _textPostController = TextPostController.GetInstance;
+                    _textPostController.Initialize(initiatePostController);
+                   
                     break;
                 case 3:
                     _BackToHomePageController?.Invoke();

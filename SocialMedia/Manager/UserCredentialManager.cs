@@ -1,10 +1,5 @@
 ﻿using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.DataSet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SocialMedia.Model.EntityModel;
 
 namespace SocialMedia.Manager
@@ -18,19 +13,22 @@ namespace SocialMedia.Manager
         {
         }
 
-        public static UserCredentialManager GetUserCredentialManager()
+        public static UserCredentialManager Instance
         {
-            if (userCredentialManager == null)
+            get
             {
-                lock (padlock)
+                if (userCredentialManager == null)
                 {
-                    if (userCredentialManager == null)
+                    lock (padlock)
                     {
-                        userCredentialManager = new UserCredentialManager();
+                        if (userCredentialManager == null)
+                        {
+                            userCredentialManager = new UserCredentialManager();
+                        }
                     }
                 }
+                return userCredentialManager;
             }
-            return userCredentialManager;
         }
 
         IUserCredentialSet userCredentialSet = new UserCredentialSet();
@@ -49,6 +47,10 @@ namespace SocialMedia.Manager
         {
             userCredentialSet.RemoveUserCredential(userCredential);
         }
-        
+
+        internal UserCredential GetUserCredential(string userId)
+        {
+            return userCredentialSet.RetrieveUsersCredential().Single(credential => credential.UserId == userId);
+        }
     }
 }

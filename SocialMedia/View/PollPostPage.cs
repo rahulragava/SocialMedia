@@ -46,7 +46,7 @@ namespace SocialMedia.View
 
         }
 
-        public PollPostBobj GetUserSelectedPostToEdit(List<PollPostBobj> pollPosts)
+        public PollPostBObj GetUserSelectedPostToEdit(List<PollPostBObj> pollPosts)
         {
             "Editing a poll post".PrintLine();
             "Select a post by its Id to edit".PrintLine();
@@ -81,7 +81,7 @@ namespace SocialMedia.View
             return userChoice;
         }
 
-        public (string,DateTime) EditPostQuestion(PollPostBobj pollPostBobj)
+        public (string,DateTime) EditPostQuestion(PollPostBObj pollPostBobj)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             $"Original Question => {pollPostBobj.Question}".PrintLine();
@@ -95,7 +95,7 @@ namespace SocialMedia.View
         }
 
 
-        public (string, DateTime) EditPostTitle(PollPostBobj pollPostBobj)
+        public (string, DateTime) EditPostTitle(PollPostBObj pollPostBobj)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             $"Original Title => {pollPostBobj.Title}".PrintLine();
@@ -115,7 +115,7 @@ namespace SocialMedia.View
             $"Original Choice".PrintLine();
         }
 
-        public PollPostBobj GetUserSelectedPostToRemove(List<PollPostBobj> pollPosts)
+        public PollPostBObj GetUserSelectedPostToRemove(List<PollPostBObj> pollPosts)
         {
             "Remove a poll post ! ".PrintLine();
             "Select a post by its Id to remove".PrintLine();

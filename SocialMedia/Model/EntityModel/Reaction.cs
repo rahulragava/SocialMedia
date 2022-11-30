@@ -1,18 +1,18 @@
-﻿using SocialMedia.Model.EntityModel.EnumTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SocialMedia.Constant;
 
 namespace SocialMedia.Model.EntityModel
 {
     public class Reaction
     {
-        public int Id { get;set; }
-        public int ReactedBy { get; set; }
-        public int ReactionOnId { get; set; }
+        public string Id { get;set; }
+        public string ReactedBy { get; set; }
+        public string ReactionOnId { get; set; }
         public ReactionType reactionType { get; set; }  
-        public ReactedOnType ReactionOnType { get; set; }
+        //public ReactedOnType ReactionOnType { get; set; }
+
+        public Reaction()
+        {
+            Id = Guid.NewGuid().ToString();  
+        }
     }
 }

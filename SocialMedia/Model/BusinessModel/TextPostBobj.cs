@@ -2,8 +2,8 @@
 
 namespace SocialMedia.Model.BusinessModel
 {
-    public class TextPostBobj : PostBobj
+    public class TextPostBObj : PostBObj
     {
-        public string? Content { get; set; }
+        public string Content { get; set; }
     }
 }

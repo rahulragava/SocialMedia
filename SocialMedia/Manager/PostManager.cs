@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SocialMedia.Model.EntityModel.EnumTypes
+namespace SocialMedia.Manager
 {
-    public enum CommentedOnType
+    public class PostManager
     {
-        TextPost = 1,
-        PollPost
+
     }
 }

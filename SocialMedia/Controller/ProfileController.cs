@@ -1,38 +1,63 @@
-﻿using SocialMedia.DataSet;
-using SocialMedia.Manager;
+﻿using SocialMedia.Manager;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
 using SocialMedia.View;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.Controller
 {
     public class ProfileController
     {
-        UserBobj _searchedUser;
-        UserBobj _viewingUser;
+        private static readonly object padlock = new object();
+        private static ProfileController instance;
+
+        string _searchedUserId;
+        UserBObj _searchedUser;
+        UserBObj _viewingUser;
+
         ProfilePage _profilePage;
         Action _BackToSearchController;
-        ReactionManager _reactionManager = ReactionManager.GetReactionManager();
-        CommentManager _commentManager = CommentManager.GetCommentManager();
-        
-        public ProfileController(Action BackToSearchController, UserBobj searchedUser, UserBobj viewingUser)
+        ReactionManager _reactionManager = ReactionManager.Instance;
+        CommentManager _commentManager = CommentManager.Instance;
+
+
+        ProfileController()
+        {
+        }
+
+        public static ProfileController GetInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new ProfileController();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
+
+        public void Initialize(Action BackToSearchController, string searchedUserId) 
         {
             _BackToSearchController = BackToSearchController;
-            _searchedUser = searchedUser;
-            _viewingUser = viewingUser;
+            _searchedUserId = searchedUserId;
             _profilePage = new ProfilePage();
+            InitiateProfileController();
         }
 
         public void InitiateProfileController() 
         {
+            _searchedUser = UserManager.Instance.GetNonNullUserBObj(_searchedUserId);
+            _viewingUser = ApplicationController.user;
+
             var userChoice = _profilePage.InitiateProfilePage(_searchedUser);
+
+            
 
             switch (userChoice)
             {
@@ -42,13 +67,40 @@ namespace SocialMedia.Controller
                 case 2: // view user's poll post
                     UserPollPostComponent();
                     break;
-                case 3: //back to search menu 
+                case 3: //follow/unfollow
+                    CheckAndUpdateFollowing();
+                    break;
+                case 4: //back to search menu 
                     BackToSearchController();
                     break;
             }
-
         }
 
+        private void CheckAndUpdateFollowing() 
+        {
+            var isFollowed = _searchedUser.FollowersId.Exists(followerId => followerId == _viewingUser.Id);
+            if (isFollowed)
+            {
+                var isConfirmed = _profilePage.ConfirmationMessageToUnfollow();
+                if (isConfirmed)
+                {
+                    UserManager.Instance.Unfollow(_viewingUser.Id, _searchedUser.Id);
+                    _viewingUser.FollowingsId.Remove(_searchedUserId);
+                    _searchedUser.FollowersId.Remove(_viewingUser.Id);
+                }
+            }
+            else
+            {
+               var isConfirmed = _profilePage.ConfirmationMessageToFollow();
+                if (isConfirmed)
+                {
+                    UserManager.Instance.Follow(_viewingUser.Id, _searchedUser.Id);
+                    _viewingUser.FollowingsId.Add(_searchedUserId);
+                    _searchedUser.FollowersId.Add(_viewingUser.Id);
+                }
+            }
+            InitiateProfileController();
+        }
 
         private void UserTextPostComponent()
         {
@@ -62,24 +114,24 @@ namespace SocialMedia.Controller
                 {
                     case 1: // Parent comment
 
-                        CommentBobj comment = new CommentBobj();
+                        CommentBObj comment = new CommentBObj();
                         var commentContent = _profilePage.GetUserComment();
-                        var lastPostId = _commentManager.GetLastCommentId();
+                        //var newCommentId = _commentManager.GetNewCommentId();
 
                         comment.PostId = selectedTextPost.Id;
                         comment.ParentCommentId = null;
-                        comment.CommentedOn = CommentedOnType.TextPost;
                         comment.CommentedBy = _viewingUser.Id;
                         comment.CommentedAt = DateTime.Now;
                         comment.Content = commentContent;
-                        comment.Id = lastPostId + 1;
+                        //comment.Id = newCommentId;
 
                         selectedTextPost.Comments.Add(comment);
                         _commentManager.AddComment(comment);
                         InitiateProfileController();
                         break;
                     case 2: // view comment and reply to comments
-                        CommentComponent(selectedTextPost);
+
+                        CommentComponent(selectedTextPost); // get id and get textpost or poll post from manager class
                         InitiateProfileController();
 
                         break;
@@ -100,7 +152,7 @@ namespace SocialMedia.Controller
             if (_searchedUser.PollPosts != null)
             {
                 
-                (PollPostBobj selectedPollPost,int pollPostIndex) pollPostBobj = _profilePage.ViewUserPollPosts(_searchedUser.PollPosts);
+                (PollPostBObj selectedPollPost,int pollPostIndex) pollPostBobj = _profilePage.ViewUserPollPosts(_searchedUser.PollPosts);
                 var isUserYetToSelect = true;
                 foreach(var choice in pollPostBobj.selectedPollPost.choices)
                 {
@@ -121,7 +173,7 @@ namespace SocialMedia.Controller
                     userSelectionPollChoice.ChoiceId = selectedOption.Id;
 
                     _searchedUser.PollPosts[pollPostBobj.pollPostIndex].choices.Single(choice => choice.Id == selectedOption.Id).choiceSelectedUsers.Add(userSelectionPollChoice);
-                    PollChoiceManager.GetPollPostManager().AddChoiceSelectedUser(userSelectionPollChoice);
+                    PollChoiceManager.Instance.AddChoiceSelectedUser(userSelectionPollChoice);
 
                     _profilePage.ViewPollResult(pollPostBobj.selectedPollPost);
 
@@ -138,17 +190,14 @@ namespace SocialMedia.Controller
                 switch (userChoice)
                 {
                     case 1:
-                        CommentBobj comment = new CommentBobj();
+                        CommentBObj comment = new CommentBObj();
                         var commentContent = _profilePage.GetUserComment();
-                        var lastPostId = _commentManager.GetLastCommentId();
 
                         comment.PostId = pollPostBobj.selectedPollPost.Id;
                         comment.ParentCommentId = null;
-                        comment.CommentedOn = CommentedOnType.TextPost;
                         comment.CommentedBy = _viewingUser.Id;
                         comment.CommentedAt = DateTime.Now;
                         comment.Content = commentContent;
-                        comment.Id = lastPostId + 1;
 
                         pollPostBobj.selectedPollPost.Comments.Add(comment);
                         _commentManager.AddComment(comment);
@@ -170,16 +219,15 @@ namespace SocialMedia.Controller
             }
         }
 
-        private void CommentComponent(PostBobj selectedPostBobj)
+        private void CommentComponent(PostBObj selectedPostBobj)
         {
-            (int userChoice, List<int> commentIds) = _profilePage.CommentView(selectedPostBobj);
-            CommentBobj commentBobj = new CommentBobj();
+            //var selectedPostBObj = 
+            (int userChoice, List<string> commentIds) = _profilePage.CommentView(selectedPostBobj);
+            CommentBObj commentBobj = new CommentBObj();
             switch (userChoice)
             {
                 case 1: // reply 
-                    (string content, int parentCommentId) = _profilePage.ReplyView(commentIds);
-                    var commentId = _commentManager.GetLastCommentId();
-                    commentBobj.Id = commentId + 1;
+                    (string content, string parentCommentId) = _profilePage.ReplyView(commentIds);
                     commentBobj.ParentCommentId = parentCommentId;
                     commentBobj.CommentedBy = _viewingUser.Id;
                     commentBobj.CommentedAt = DateTime.Now;
@@ -188,15 +236,6 @@ namespace SocialMedia.Controller
                     var parentCommentAt = selectedPostBobj.Comments.FindIndex(comment => comment.Id == commentBobj.ParentCommentId);
                     commentBobj.Depth = selectedPostBobj.Comments[parentCommentAt].Depth + 1;
 
-                    if (selectedPostBobj is TextPostBobj)
-                    {
-
-                        commentBobj.CommentedOn = CommentedOnType.TextPost;
-                    }
-                    else if (selectedPostBobj is PollPostBobj)
-                    {
-                        commentBobj.CommentedOn = CommentedOnType.PollPost;
-                    }
                     selectedPostBobj.Comments.Insert(parentCommentAt + 1, commentBobj);
                     _commentManager.AddComment(commentBobj);
 
@@ -211,7 +250,7 @@ namespace SocialMedia.Controller
             }
         }
 
-        private void ReactionComponent(PostBobj postBobj)
+        private void ReactionComponent(PostBObj postBobj)
         {
             var userChoice = _profilePage.GetUserChoiceOfReaction();
             switch (userChoice)
@@ -229,7 +268,7 @@ namespace SocialMedia.Controller
             }
         }
 
-        private void RemoveReaction(PostBobj postBobj)
+        private void RemoveReaction(PostBObj postBobj)
         {
             var isViewingUserReacted = postBobj.Reactions.Exists(reaction => reaction.ReactedBy == _viewingUser.Id);
             if (isViewingUserReacted)
@@ -248,24 +287,22 @@ namespace SocialMedia.Controller
 
         }
 
-        private void AddReaction(PostBobj postBobj)
+        private void AddReaction(PostBObj postBobj)
         {
             var userReaction = _profilePage.GetUserReaction();
-            var lastPostId = _reactionManager.GetLastReactionId();
             var reaction = new Reaction();
-            reaction.Id = lastPostId + 1;
             reaction.ReactedBy = _viewingUser.Id;
             reaction.ReactionOnId = postBobj.Id;
             reaction.reactionType = userReaction;
+            var isViewingUserReacted = postBobj.Reactions.Exists(reaction => reaction.ReactedBy == _viewingUser.Id);
+            if (isViewingUserReacted)
+            {
+                var alreadyReacted = postBobj.Reactions.Single(reaction => reaction.ReactedBy == _viewingUser.Id);
+                _reactionManager.RemoveReaction(alreadyReacted);
+                postBobj.Reactions.Remove(alreadyReacted);
+
+            }
             
-            if(postBobj is TextPostBobj)
-            {
-                reaction.ReactionOnType = ReactedOnType.TextPost;
-            }
-            else
-            {
-                reaction.ReactionOnType = ReactedOnType.PollPost;
-            }
             postBobj.Reactions.Add(reaction);
 
             _reactionManager.AddReaction(reaction);
@@ -273,7 +310,7 @@ namespace SocialMedia.Controller
             //InitiateProfileController();
         }
 
-        private void CommentReactionComponent(CommentBobj commentBobj)
+        private void CommentReactionComponent(CommentBObj commentBobj)
         {
             var userChoice = _profilePage.GetUserChoiceOfReaction();
             switch (userChoice)
@@ -291,7 +328,7 @@ namespace SocialMedia.Controller
             }
         }
 
-        private void RemoveCommentReaction(CommentBobj commentBobj)
+        private void RemoveCommentReaction(CommentBObj commentBobj)
         {
             var isViewingUserReacted = commentBobj.Reactions.Exists(reaction => reaction.ReactedBy == _viewingUser.Id);
             if (isViewingUserReacted)
@@ -305,20 +342,18 @@ namespace SocialMedia.Controller
             {
                 _profilePage.NeverReactedMessage();
             }
-            //InitiateProfileController();
-
         }
 
-        private void AddCommentReaction(CommentBobj commentBobj)
+        private void AddCommentReaction(CommentBObj commentBobj)
         {
             var userReaction = _profilePage.GetUserReaction();
-            var lastPostId = _reactionManager.GetLastReactionId();
+            //var lastPostId = _reactionManager.GetLastReactionId();
             var reaction = new Reaction();
-            reaction.Id = lastPostId + 1;
+            //reaction.Id = lastPostId + 1;
             reaction.ReactedBy = _viewingUser.Id;
             reaction.ReactionOnId = commentBobj.Id;
             reaction.reactionType = userReaction;
-            reaction.ReactionOnType = ReactedOnType.Comment;
+            //reaction.ReactionOnType = ReactedOnType.Comment;
             if(commentBobj.Reactions == null )
             {
                 commentBobj.Reactions = new List<Reaction>();   

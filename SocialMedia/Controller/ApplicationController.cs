@@ -4,20 +4,46 @@ using SocialMedia.View;
 
 namespace SocialMedia.Controller
 {
-    public class ApplicationController
+    public sealed class ApplicationController
     {
+        private static ApplicationController _applicationInstance = new ApplicationController();
+        private readonly static object _padLock = new object();
         readonly WelcomePage _welcomePage = new WelcomePage();
         readonly SignInView _signInPage = new SignInView();
         readonly HomePage _homePage = new HomePage();
+        public static UserBObj user;
+
 
         HomePageController _homePageController;
-        
+
+        ApplicationController()
+        {
+        }
+
+        public static ApplicationController Instance
+        {
+            get
+            {
+                if(_applicationInstance == null)
+                {
+                    lock (_padLock)
+                    {
+                        if(_applicationInstance == null)
+                        {
+                            _applicationInstance = new ApplicationController();
+                        }
+                    }
+                }
+                return _applicationInstance;
+            }
+        }
         public void StartApplication()
         {
             _welcomePage.InitialPage();            
             Verification verification = new Verification();
             int choice = InputHelper.UserInputChoice(2);
-            UserBobj user;
+            //UserBObj user;
+
             switch (choice)
             {
                 case 1:  //sign-in
@@ -26,12 +52,9 @@ namespace SocialMedia.Controller
                     Action startApplication = StartApplication;
                     if (user != null)
                     {
-                        if (user.UserName != null)
-                        {
-                            _signInPage.SuccessLoggedInMessage(user.UserName);
-                        }
-                        _homePageController = new HomePageController(_homePage, user, startApplication);
-                        _homePageController.InitiateHomePageController();
+                        _signInPage.SuccessLoggedInMessage(user.UserName);
+                        _homePageController = HomePageController.GetInstance;
+                        _homePageController.InitiateHomePageController(startApplication);
                     }
                     else
                     {

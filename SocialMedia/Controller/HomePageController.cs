@@ -1,44 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SocialMedia.Model.BusinessModel;
-using SocialMedia.Model.EntityModel;
-using SocialMedia.View;
+﻿using SocialMedia.View;
 
 namespace SocialMedia.Controller
 {
     public class HomePageController
     {
+
+        private static readonly object padlock = new object();
+        private static HomePageController instance;
         SearchController searchController;
         PostController postController;
-        UserBobj _user;
         private HomePage _homePage;
         Action _BackToApplicationController;
 
-        public HomePageController(HomePage homePage, UserBobj user, Action BackToApplicationController)
+        HomePageController()
         {
-            _homePage = homePage;
-            _user = user;
-            _BackToApplicationController = BackToApplicationController;
         }
-        public void InitiateHomePageController()
+
+        public static HomePageController GetInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new HomePageController();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
+        
+        public void InitiateHomePageController(Action BackToApplicationController)
+        {
+            _homePage = new HomePage();
+            _BackToApplicationController = BackToApplicationController;
+            HomePageControllerInteraction();
+        }
+
+        public void HomePageControllerInteraction()
         {
             var userHomePageChoice = _homePage.InitiateHomePage();
 
-            Action initiateHomePageController = InitiateHomePageController;
+            Action initiateHomePageController = HomePageControllerInteraction;
 
             switch (userHomePageChoice)
             {
                 case 1: // search
-                    searchController = new SearchController(_user, initiateHomePageController);
-                    searchController.InitiateSearchController();
+                    searchController = SearchController.GetInstance;
+                    searchController.InitiateSearchController(initiateHomePageController);
                     break;
                 case 2: //Post
-                    postController = new PostController(_user, initiateHomePageController);
-                    postController.InitiatePostController();
+                    postController = PostController.GetInstance;
+                    postController.Initialize(initiateHomePageController);
                     break;
                 case 3: // exit
                     _BackToApplicationController(); // use delegate

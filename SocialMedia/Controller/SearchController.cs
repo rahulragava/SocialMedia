@@ -11,21 +11,44 @@ namespace SocialMedia.Controller
 {
     public class SearchController
     {
+        private static readonly object padlock = new object();
+        private static SearchController instance;
+        
         SearchPage searchPage;
-        UserBobj _user;
         ProfileController _profileController;
 
         Action _BackToHomePageController;
-        
 
-        public SearchController(UserBobj user, Action BackToHomePageController)
+        SearchController()
         {
-            _user = user;
-            _BackToHomePageController = BackToHomePageController;
-            searchPage = new SearchPage();
         }
 
-        public void InitiateSearchController()
+        public static SearchController GetInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    lock (padlock)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new SearchController();
+                        }
+                    }
+                }
+                return instance;
+            }
+        }
+
+        public void InitiateSearchController(Action BackToHomePageController)
+        {
+            _BackToHomePageController = BackToHomePageController;
+            searchPage = new SearchPage();
+            SearchControllerInteraction();
+        }
+
+        public void SearchControllerInteraction()
         {
             var userChoice = searchPage.InitiateSearchPageView();
             
@@ -44,19 +67,18 @@ namespace SocialMedia.Controller
 
         public void Search()
         {
-            var userManager = UserManager.GetUserManager(); 
             var userName = searchPage.SearchByName();
-            var searchedUser = userManager.GetUserBobj(userName);
-            Action initiateSearchController = InitiateSearchController;
+            var searchedUser = UserManager.Instance.GetUserBObjWithoutId(userName);
+            Action initiateSearchController = SearchControllerInteraction;
             if(searchedUser != null)
             {
-                _profileController = new ProfileController(initiateSearchController, searchedUser, _user);
-                _profileController.InitiateProfileController();
+                _profileController = ProfileController.GetInstance;
+                _profileController.Initialize(initiateSearchController, searchedUser.Id);
             }
             else
             {
                 searchPage.UserNotFoundMessage();
-                InitiateSearchController();
+                SearchControllerInteraction();
             }
         }
     }

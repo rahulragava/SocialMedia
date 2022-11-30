@@ -2,14 +2,7 @@
 using SocialMedia.DataSet;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SocialMedia.Model.EntityModel.EnumTypes;
-using System.ComponentModel.DataAnnotations;
-using System.Collections;
+using SocialMedia.Constant;
 
 namespace SocialMedia.Manager
 {
@@ -23,46 +16,49 @@ namespace SocialMedia.Manager
         {
         }
 
-        public static PollPostManager GetPollPostManager()
+        public static PollPostManager Instance
         {
-            if (pollPostManager == null)
+            get
             {
-                lock (padlock)
+                if (pollPostManager == null)
                 {
-                    if (pollPostManager == null)
+                    lock (padlock)
                     {
-                        pollPostManager = new PollPostManager();
+                        if (pollPostManager == null)
+                        {
+                            pollPostManager = new PollPostManager();
+                        }
                     }
                 }
+                return pollPostManager;
             }
-            return pollPostManager;
         }
+
         IPollPostSet pollPostSet = new PollPostSet();
-        PollChoiceManager pollChoiceManager = PollChoiceManager.GetPollPostManager();
+        PollChoiceManager pollChoiceManager = PollChoiceManager.Instance;
         
 
-        ReactionManager reactionManager = ReactionManager.GetReactionManager();
-        CommentManager commentManager = CommentManager.GetCommentManager();
+        ReactionManager reactionManager = ReactionManager.Instance;
+        CommentManager commentManager = CommentManager.Instance;
 
-        public List<PollPostBobj> GetPollPostBobjs()
+        public List<PollPostBObj> GetPollPostBobjs()
         {
-            List<PollPostBobj> pollPostBobjs = new List<PollPostBobj>();
-            List<CommentBobj> commentBobjs = commentManager.GetCommentBobjs();
+            List<PollPostBObj> pollPostBobjs = new List<PollPostBObj>();
+            List<CommentBObj> commentBobjs = commentManager.GetCommentBobjs();
             List<Reaction> reactions= reactionManager.GetReaction();
             List<PollPost> pollPosts = pollPostSet.RetrievePollPostList();
-            List<PollChoiceBobj> pollChoices = pollChoiceManager.GetPollChoices();
-            PollPostBobj pollPostBobj;
+            List<PollChoiceBObj> pollChoices = pollChoiceManager.GetPollChoices();
+            PollPostBObj pollPostBobj;
 
             for(int i = 0; i < pollPosts.Count;i++)
             {
-                pollPostBobj = new PollPostBobj();
+                pollPostBobj = new PollPostBObj();
                 var pollPostCommentBobjs = commentBobjs
                     .Where((commentBobj) => commentBobj.PostId == pollPosts[i].Id)
                     .ToList();
                 var sortedPollCommentBobjs = GetSortedComments(pollPostCommentBobjs);
                 var pollPostReactions = reactions
-                    .Where((reaction) => (reaction.ReactionOnType == ReactedOnType.PollPost) && (reaction.ReactionOnId == pollPosts[i].Id))
-                    .ToList();
+                    .Where((reaction) => reaction.ReactionOnId == pollPosts[i].Id).ToList();
                 var choices = pollChoices.Where((choice) => choice.PostId == pollPosts[i].Id).ToList();
 
                 pollPostBobj.Id = pollPosts[i].Id;
@@ -81,24 +77,24 @@ namespace SocialMedia.Manager
             return pollPostBobjs;
         }
 
-        public List<CommentBobj> GetSortedComments(List<CommentBobj> pollPostCommentBobjs)
+        public List<CommentBObj> GetSortedComments(List<CommentBObj> pollPostCommentBobjs)
         {
-            List<CommentBobj> comments = pollPostCommentBobjs;
-            var sortedComments = new List<CommentBobj>();
+            List<CommentBObj> comments = pollPostCommentBobjs;
+            var sortedComments = new List<CommentBObj>();
 
-            List<CommentBobj> levelZeroComments = comments.Where(x => x.ParentCommentId == null).OrderBy(x => x.Id).ToList();
-            foreach (CommentBobj comment in levelZeroComments)
+            List<CommentBObj> levelZeroComments = comments.Where(x => x.ParentCommentId == null).OrderBy(x => x.CommentedAt).ToList();
+            foreach (CommentBObj comment in levelZeroComments)
             {
                 sortedComments.Add(comment);
                 comment.Depth = 0;
                 RecusiveSort(comment.Id, 1);
             }
 
-            void RecusiveSort(int id, int depth)
+            void RecusiveSort(string id, int depth)
             {
-                List<CommentBobj> childComments = comments.Where(x => x.ParentCommentId == id).OrderBy(x => x.Id).ToList();
+                List<CommentBObj> childComments = comments.Where(x => x.ParentCommentId == id).OrderBy(x => x.CommentedAt).ToList();
 
-                foreach (CommentBobj comment in childComments)
+                foreach (CommentBObj comment in childComments)
                 {
                     sortedComments.Add(comment);
                     comment.Depth = depth;
@@ -109,7 +105,7 @@ namespace SocialMedia.Manager
             return sortedComments;
         }
 
-        public void AddPollPost(PollPostBobj pollPostBobj)
+        public void AddPollPost(PollPostBObj pollPostBobj)
         {
             if(pollPostBobj.choices != null)
             {
@@ -118,7 +114,7 @@ namespace SocialMedia.Manager
             var pollPost = ConvertToEntityModel(pollPostBobj);
             pollPostSet.AddPost(pollPost);
         }
-        public void EditPollPost(PollPostBobj pollPostBobj)
+        public void EditPollPost(PollPostBObj pollPostBobj)
         {
 
             int pollPostAt = GetPollPostBobjs().FindIndex(pollPost => pollPost.Id == pollPostBobj.Id);
@@ -126,7 +122,33 @@ namespace SocialMedia.Manager
             pollPostSet.UpdatePost(pollPostAt, pollPost);
         }
 
-        private PollPost ConvertToEntityModel(PollPostBobj pollPostBobj)
+        public PollPostBObj GetPollPostBObj(string postId)
+        {
+            var pollPost = pollPostSet.RetrievePollPostList().Single(pollPost => pollPost.Id == postId);
+            var comments = commentManager.GetCommentBobjs().Where(comment => comment.PostId == postId).ToList();
+            var reactions = reactionManager.GetReaction().Where(reaction => reaction.ReactionOnId == postId).ToList();
+            var choices = pollChoiceManager.GetPollChoices();
+            var pollPostBObj = convertEntityToBObj(pollPost, comments, reactions, choices);
+
+            return pollPostBObj;
+        }
+
+        private PollPostBObj convertEntityToBObj(PollPost pollPost, List<CommentBObj> comments, List<Reaction> reactions,List<PollChoiceBObj> pollChoices)
+        {
+            var pollPostBObj = new PollPostBObj();
+            pollPostBObj.Id = pollPost.Id;
+            pollPostBObj.Title = pollPost.Title;
+            pollPostBObj.PostedBy = pollPost.PostedBy;
+            pollPostBObj.Question = pollPost.Question;
+            pollPostBObj.choices = pollChoices;
+            pollPostBObj.CreatedAt = pollPost.CreatedAt;
+            pollPostBObj.LastModifiedAt = pollPost.LastModifiedAt;
+            pollPostBObj.Comments = comments;
+            pollPostBObj.Reactions = reactions;
+
+            return new PollPostBObj();
+        }
+        private PollPost ConvertToEntityModel(PollPostBObj pollPostBobj)
         {
             PollPost pollPost = new PollPost();
 
@@ -141,7 +163,7 @@ namespace SocialMedia.Manager
 
         }
 
-        public void RemovePollPost(PollPostBobj pollPostBobj)
+        public void RemovePollPost(PollPostBObj pollPostBobj)
         {
             var pollPost = ConvertToEntityModel(pollPostBobj);
             pollPostSet.RemovePost(pollPost);
@@ -152,17 +174,5 @@ namespace SocialMedia.Manager
             pollChoiceManager.RemovePollChoices(pollPostBobj.choices);
         }
 
-        public int GetLastPostId()
-        {
-            var pollPostSets = pollPostSet.RetrievePollPostList();
-            if (pollPostSets.Count > 0)
-            {
-                return pollPostSets[pollPostSets.Count-1].Id;
-            }
-            else
-            {
-                return 0;
-            }
-        }
     }
 }

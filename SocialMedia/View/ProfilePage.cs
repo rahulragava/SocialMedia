@@ -1,22 +1,14 @@
-﻿using SocialMedia.Controller;
+﻿using SocialMedia.Constant;
 using SocialMedia.Manager;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.View
 {
     public class ProfilePage
     {
-        public int InitiateProfilePage(UserBobj searchedUser)
+        public int InitiateProfilePage(UserBObj searchedUser)
         {
             InputHelper.ClearConsole();
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -31,18 +23,21 @@ namespace SocialMedia.View
             $"      Occupation             : { searchedUser.Occupation }".PrintLine();
             $"      Place                  : { searchedUser.Place }".PrintLine();
             $"      Account created At     : { searchedUser.CreatedAt }".PrintLine();
+            $"      followers count        : {searchedUser.FollowersId.Count}".PrintLine();
+            $"      following count        : {searchedUser.FollowingsId.Count}".PrintLine();
             "".PrintLine();
             "".PrintLine();
             InputHelper.ResetConsoleColor();
             "1. View User Text Post".PrintLine();
             "2. View User Poll Post".PrintLine();
-            "3. Exit to searchMenu".PrintLine();
+            "3. Follow/Unfollow".PrintLine();
+            "4. Exit to searchMenu".PrintLine();
 
-            return InputHelper.UserInputChoice(3);
+            return InputHelper.UserInputChoice(4);
         }
 
 
-        public TextPostBobj ViewUserTextPosts(List<TextPostBobj> textPosts)
+        public TextPostBObj ViewUserTextPosts(List<TextPostBObj> textPosts)
         {
             InputHelper.ClearConsole();
             var indexCount = 1;
@@ -61,7 +56,7 @@ namespace SocialMedia.View
             return textPosts[userChoice - 1];
         }
 
-        public (PollPostBobj,int) ViewUserPollPosts(List<PollPostBobj> pollPosts)
+        public (PollPostBObj,int) ViewUserPollPosts(List<PollPostBObj> pollPosts)
         {
             InputHelper.ClearConsole();
             var indexCount = 1;
@@ -82,7 +77,7 @@ namespace SocialMedia.View
         }
 
 
-        public void ViewUserTextPost(TextPostBobj selectedTextPost)
+        public void ViewUserTextPost(TextPostBObj selectedTextPost)
         {
             InputHelper.ClearConsole();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -101,15 +96,16 @@ namespace SocialMedia.View
                 
                 SplitContentAndShow(selectedTextPost.Content);
                 var reactions = selectedTextPost.Reactions;
-                var reaction = 0;
+                //var reaction = 0;
                 Console.ForegroundColor = ConsoleColor.DarkCyan;
 
                 "+---------------------------------------------------------------------------------------------------".PrintLine();
                 "".PrintLine();
                 int count = 0;
+
                 foreach (ReactionType reactionType in Enum.GetValues(typeof(ReactionType)))
                 {
-                    reaction = GetReactionEmoteIconCount(reactions, reactionType);
+                    var reaction = GetReactionEmoteIconCount(reactions, reactionType);
                     $"| {emoteIcons[count]} : {reaction} |  ".Print();
                     count++;
                 }
@@ -121,7 +117,7 @@ namespace SocialMedia.View
             }
         }  
 
-        public int ViewUserPollPost(PollPostBobj selectedPollPost) 
+        public int ViewUserPollPost(PollPostBObj selectedPollPost) 
         {
             InputHelper.ClearConsole();
             
@@ -171,7 +167,7 @@ namespace SocialMedia.View
             return reactionCount;
         }
 
-        public int UserTextPostsOptions(TextPostBobj selectedTextPost)
+        public int UserTextPostsOptions(TextPostBObj selectedTextPost)
         {
             "1. Comment".PrintLine();
             "2. View comment".PrintLine();
@@ -227,13 +223,12 @@ namespace SocialMedia.View
             return comment;
         }
 
-        public void ViewPollResult(PollPostBobj pollPostBobj)
+        public void ViewPollResult(PollPostBObj pollPostBobj)
         {
             var emoteIcons = new List<string>() { "\x263A", ":(", "0_0", "o.0", "\x2665", "thumbs up", "thumbsdown", "\x2665 X" }; // emoji is not supproted in c# console
             Console.OutputEncoding = Encoding.UTF8;
         
             var reactions = pollPostBobj.Reactions;
-            var reaction = 0;
             Console.ForegroundColor = ConsoleColor.DarkCyan;
             "".PrintLine();
             "+-----------------------------------------------------------------------------------------------------------".PrintLine();
@@ -241,7 +236,7 @@ namespace SocialMedia.View
             int count = 0;
             foreach (ReactionType reactionType in Enum.GetValues(typeof(ReactionType)))
             {
-                reaction = GetReactionEmoteIconCount(reactions, reactionType);
+                var reaction = GetReactionEmoteIconCount(reactions, reactionType);
                 $"| {emoteIcons[count]} : {reaction} |  ".Print();
                 count++;
             }
@@ -268,10 +263,9 @@ namespace SocialMedia.View
             foreach (var choice in pollPostBobj.choices)
             {
                 "".PrintLine();
-                var selectedPercent = (choice.choiceSelectedUsers.Count() / totalVotes) * 100;
+                var selectedPercent = (choice.choiceSelectedUsers.Count() * 100) / totalVotes;
                 string voted = string.Concat(Enumerable.Repeat("0 ", (int)selectedPercent / 10));
                 string unvoted = string.Concat(Enumerable.Repeat("X ", totalStar - (int)selectedPercent / 10));
-
 
                 $"{choice.Choice}       ===> { voted }{ unvoted } | { selectedPercent } %".PrintLine();
             }
@@ -292,22 +286,22 @@ namespace SocialMedia.View
             return InputHelper.UserInputChoice(4);
         }
 
-        public (int,List<int>) CommentView(PostBobj postBobj)
+        public (int,List<string>) CommentView(PostBObj postBobj)
         {
-            List<int> commentIds = new List<int>();
+            List<string> commentIds = new List<string>();
             Console.ForegroundColor = ConsoleColor.Cyan;
             
             "                COMMENT SECTION                ".PrintLine();
             "------------------------------------------------".PrintLine();
-
+            var index = 1;
             foreach (var comment in postBobj.Comments)
             {
-                $"  {new string(' ', comment.Depth)} {comment.Id}. {comment.Content}".PrintLine();
-                $"  {new string(' ', comment.Depth + 5)}- ( {UserManager.GetUserManager().GetUserBobj(comment.CommentedBy).UserName}. date : {comment.CommentedAt} )".PrintLine();
-
+                $"  {new string(' ', comment.Depth)} {index}. {comment.Content}".PrintLine();
+                $"  {new string(' ', comment.Depth + 5)} - ( {UserManager.Instance.GetNonNullUserBObj(comment.CommentedBy).UserName}.  {(DateTime.Now - comment.CommentedAt)} ago )".PrintLine();
+                //var IdNumber = int.Parse(comment.Id.Substring(2));
                 commentIds.Add(comment.Id);
+                index++;
             }
-
             "------------------------------------------------".PrintLine();
             "".PrintLine();
             InputHelper.ResetConsoleColor();
@@ -319,33 +313,47 @@ namespace SocialMedia.View
             return (userChoice, commentIds);
         }
 
-        public (string,int) ReplyView(List<int> commentIds)
+        public (string,string) ReplyView(List<string> commentIds)
         {
-            "press comment id number to reply to that comment".PrintLine();
+            "press respective index number to reply to that comment".PrintLine();
 
-            var commentId = InputHelper.GetPositiveInt();
-            while (!commentIds.Contains(commentId))
-            {
-                "no such comment existed, please type a valid commentId".PrintLine();
-                commentId = InputHelper.GetPositiveInt();
-            }
+            var commentIndex = InputHelper.UserInputChoice(commentIds.Count);
+            var commentId = commentIds[commentIndex-1]; //comment id
+
             "Enter your reply".PrintLine();
             var content = InputHelper.GetText();
 
             return (content, commentId);
         }
 
-        public int GetCommentId(List<int> commentIds)
+        public string GetCommentId(List<string> commentIds)
         {
             "press comment id number to reply to that comment".PrintLine();
 
-            var commentId = InputHelper.GetPositiveInt();
-            while (!commentIds.Contains(commentId))
-            {
-                "no such comment existed, please type a valid commentId".PrintLine();
-                commentId = InputHelper.GetPositiveInt();
-            }
+            var commentIndex = InputHelper.UserInputChoice(commentIds.Count);
+            var commentId = commentIds[commentIndex-1];
+
             return commentId;
+        }
+
+        internal bool ConfirmationMessageToUnfollow()
+        {
+            "Are you sure, you want to unfollow this account ?".PrintLine();
+            "1. yes".PrintLine();
+            "2. no".PrintLine();
+
+            var userChoice = InputHelper.UserInputChoice(2);
+            return userChoice == 1 ? true : false;
+        }
+
+        internal bool ConfirmationMessageToFollow()
+        {
+            "Are you sure, you want to follow this account ?".PrintLine();
+            "1. yes".PrintLine();
+            "2. no".PrintLine();
+
+            var userChoice = InputHelper.UserInputChoice(2);
+            return userChoice == 1 ? true : false;
         }
     }
 }

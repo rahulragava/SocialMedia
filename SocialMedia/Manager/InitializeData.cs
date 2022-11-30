@@ -1,57 +1,48 @@
-﻿using SocialMedia.DataSet;
-using SocialMedia.DataSet.DataSetInterface;
+﻿using SocialMedia.Constant;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
 
 namespace SocialMedia.Manager
 {
     public class InitializeData
     {
-        UserManager userManager = UserManager.GetUserManager();
-        UserCredentialManager userCredentialManager = UserCredentialManager.GetUserCredentialManager();
-        TextPostManager textPostManager = TextPostManager.GetTextPostManager();
-        PollPostManager pollPostManager = PollPostManager.GetPollPostManager();
-        PollChoiceManager pollChoiceManager = PollChoiceManager.GetPollPostManager();
-        CommentManager commentManager = CommentManager.GetCommentManager();
-        ReactionManager reactionManager = ReactionManager.GetReactionManager();
+        UserManager userManager = UserManager.Instance;
+        UserCredentialManager userCredentialManager = UserCredentialManager.Instance;
+        TextPostManager textPostManager = TextPostManager.Instance;
+        PollPostManager pollPostManager = PollPostManager.Instance;
+        PollChoiceManager pollChoiceManager = PollChoiceManager.Instance;
+        CommentManager commentManager = CommentManager.Instance;
+        ReactionManager reactionManager = ReactionManager.Instance;
         public void Initialize()
         {
             userCredentialManager.AddUserCredential(new UserCredential()
             {
-                UserId = 1,
-                UserName = "sanjei_pranav",
-                PhoneNumber = "987654321",
-                MailId = "sanjei@gmail.com",
+                UserId = "User1",
                 Password = "1234567",
             });
 
             userCredentialManager.AddUserCredential(new UserCredential()
             {
-                UserId = 2,
-                UserName = "shriniwaz007",
-                PhoneNumber = "8123456789",
-                MailId = "shriniwaz@gmail.com",
+                UserId = "User2",
                 Password = "abcdefg",
             });
 
             userCredentialManager.AddUserCredential(new UserCredential()
             {
-                UserId = 3,
-                UserName = "DineshThor",
-                PhoneNumber = "7123456789",
-                MailId = "dineshsds@gmail.com",
+                UserId = "User3",
                 Password = "dinesh",
             });
             userManager.AddUser(new User()
             {
-                Id = 1,
+                Id = "User1",
                 UserName = "sanjei_pranav",
                 CreatedAt = new DateTime(2019, 12, 11),
+                PhoneNumber = "987654321",
+                MailId = "sanjei@gmail.com",
                 FirstName = "Sanjei",
                 LastName = "Pranav",
-                Gender = GenderType.Male,
-                MaritalStatus = MaritalStatusType.Married,
+                Gender = Gender.Male,
+                MaritalStatus = MaritalStatus.Married,
                 Education = "vidhyalaya matric school",
                 Occupation = "Developer",
                 Place = "chennai"
@@ -60,243 +51,244 @@ namespace SocialMedia.Manager
 
             userManager.AddUser(new User()
             {
-                Id = 2,
+                Id = "User2",
                 UserName = "shriniwaz007",
                 CreatedAt = new DateTime(2021, 12, 15),
                 FirstName = "shriniwaz",
-                Gender = GenderType.Male,
-                MaritalStatus = MaritalStatusType.UnMarried,
+                Gender = Gender.Male,
+                PhoneNumber = "8123456789",
+                MailId = "shriniwaz@gmail.com",
+                MaritalStatus = MaritalStatus.UnMarried,
                 Education = "vidhyalaya matric school",
                 Occupation = "Data Analyst",
                 Place = "chennai",
             });
             userManager.AddUser(new User()
             {
-                Id = 3,
+                Id = "User3",
                 UserName = "DineshThor",
                 CreatedAt = new DateTime(2022, 10, 11),
                 FirstName = "Dinesh",
                 LastName = "Sundar",
-                Gender = GenderType.Male,
-                MaritalStatus = MaritalStatusType.Married,
+                PhoneNumber = "7123456789",
+                MailId = "dineshsds@gmail.com",
+                Gender = Gender.Male,
+                MaritalStatus = MaritalStatus.Married,
                 Education = "vidhyalaya matric school",
                 Occupation = "Data scientist",
                 Place = "vellore"
             });
 
-            pollPostManager.AddPollPost(new PollPostBobj()
+            pollPostManager.AddPollPost(new PollPostBObj()
             {
-                Id = 1,
+                Id = "PP1",
                 Title = "social science",
                 CreatedAt = DateTime.Now,
                 LastModifiedAt = null,
-                PostedBy = 1,
+                PostedBy = "User1",
                 Question = "what is the capital of india ? ",
             });
 
-            pollPostManager.AddPollPost(new PollPostBobj()
+            pollPostManager.AddPollPost(new PollPostBObj()
             {
-                Id = 2,
+                Id = "PP2",
                 Title = "General knowledge",
                 CreatedAt = new DateTime(2020, 2, 12),
                 LastModifiedAt = null,
-                PostedBy = 3,
+                PostedBy = "User3",
                 Question = "what color is sky",
 
             });
 
-            pollPostManager.AddPollPost(new PollPostBobj()
+            pollPostManager.AddPollPost(new PollPostBObj()
             {
-                Id = 3,
+                Id = "PP3",
                 Title = "General Knowledge",
                 CreatedAt = new DateTime(2019, 1, 1),
                 LastModifiedAt = null,
-                PostedBy = 3,
+                PostedBy = "User3",
                 Question = "how many days in a non leap year ? ",
             });
 
-            pollPostManager.AddPollPost(new PollPostBobj()
+            pollPostManager.AddPollPost(new PollPostBObj()
             {
-                Id = 5,
+                Id = "PP5",
                 Title = "common Knowledge",
                 CreatedAt = new DateTime(2019, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 3,
+                PostedBy = "User3",
                 Question = "how are you ? ",
             });
 
-            pollPostManager.AddPollPost(new PollPostBobj()
+            pollPostManager.AddPollPost(new PollPostBObj()
             {
-                Id = 4,
+                Id = "PP4",
                 Title = "programming",
                 CreatedAt = new DateTime(2012, 12, 12),
                 LastModifiedAt = null,
-                PostedBy = 2,
+                PostedBy = "User2",
                 Question = "console.log() is used in which language ? ",
             });
 
 
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 1,
+                Id = "PollChoice1",
                 Choice = "Chennai",
-                PostId = 1,
+                PostId = "PP1",
 
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 2,
+                Id = "PollChoice2",
                 Choice = "Mumbai",
-                PostId = 1,
+                PostId = "PP1",
 
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 3,
+                Id = "PollChoice3",
                 Choice = "Kolkatta",
-                PostId = 1,
+                PostId = "PP1",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 4,
+                Id = "PollChoice4",
                 Choice = "Delhi",
-                PostId = 1,
+                PostId = "PP1",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 5,
+                Id = "PollChoice5",
                 Choice = "Red",
-                PostId = 2,
+                PostId = "PP2",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 6,
+                Id = "PollChoice6",
                 Choice = "Blue",
-                PostId = 2,
+                PostId = "PP2",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 7,
+                Id = "PollChoice7",
                 Choice = "Green",
-                PostId = 2,
+                PostId = "PP2",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 8,
+                Id = "PollChoice8",
                 Choice = "364",
-                PostId = 3,
+                PostId = "PP3",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 9,
+                Id = "PollChoice9",
                 Choice = "365",
-                PostId = 3,
+                PostId = "PP3",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 10,
+                Id = "PollChoice10",
                 Choice = "345",
-                PostId = 3,
+                PostId = "PP3",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 11,
+                Id = "PollChoice11",
                 Choice = "python",
-                PostId = 4,
+                PostId = "PP4",
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 12,
+                Id = "PollChoice12",
                 Choice = "C#",
-                PostId = 4,
+                PostId = "PP4",
 
             });
-            pollChoiceManager.AddPollChoice(new PollChoiceBobj()
+            pollChoiceManager.AddPollChoice(new PollChoiceBObj()
             {
-                Id = 13,
+                Id = "PollChoice13",
                 Choice = "js",
-                PostId = 4,
+                PostId = "PP4",
             });
 
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 1,
+                Id = "TP1",
                 Content = "world is such a beautiful place to live",
                 CreatedAt = new DateTime(2021, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 1,
+                PostedBy = "User1",
                 Title = "world quote",
             });
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 2,
+                Id = "TP2",
                 Content = "inner peace is important",
                 CreatedAt = new DateTime(2015, 10, 10),
                 LastModifiedAt = new DateTime(2019, 9, 10),
-                PostedBy = 3,
+                PostedBy = "User3",
                 Title = "peace",
             });
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 3,
+                Id = "TP3",
                 Content = "life is all about ups and downs ..",
                 CreatedAt = new DateTime(2022, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 2,
+                PostedBy = "User2",
                 Title = "life quote",
             });
 
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 4,
+                Id = "TP4",
                 Content = "try hard to achieve",
                 CreatedAt = new DateTime(2022, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 2,
+                PostedBy = "User2",
                 Title = "life quote",
             });
 
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 5,
+                Id = "TP5",
                 Content = "nothing easy is worth doing..",
                 CreatedAt = new DateTime(2022, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 2,
+                PostedBy = "User2",
                 Title = "life quote",
             });
 
-            textPostManager.AddTextPost(new TextPostBobj()
+            textPostManager.AddTextPost(new TextPostBObj()
             {
-                Id = 6,
+                Id = "TP6",
                 Content = "We have gained 100 followers !!!",
                 CreatedAt = new DateTime(2022, 10, 10),
                 LastModifiedAt = null,
-                PostedBy = 3,
+                PostedBy = "User3",
                 Title = "Achievements",
             });
 
-            commentManager.AddComment(new CommentBobj()
+            commentManager.AddComment(new CommentBObj()
             {
-                Id = 1,
-                PostId = 1,
+                Id = "CO1",
+                PostId = "TP1",
                 CommentedAt = new DateTime(2015, 12, 12),
-                CommentedBy = 2,
-                CommentedOn = CommentedOnType.TextPost,
+                CommentedBy = "User2",
                 ParentCommentId = null,
                 Content = "nice post",
             });
 
-            commentManager.AddComment(new CommentBobj()
+            commentManager.AddComment(new CommentBObj()
             {
-                Id = 2,
-                PostId = 1,
+                Id = "CO2",
+                PostId = "TP1",
                 Content = "Thanks for the comment",
-                ParentCommentId = 1,
+                ParentCommentId = "CO1",
                 CommentedAt = new DateTime(2015, 12, 13),
-                CommentedBy = 3,
-                CommentedOn = CommentedOnType.TextPost
-
+                CommentedBy = "User3",
             });
         }
     }

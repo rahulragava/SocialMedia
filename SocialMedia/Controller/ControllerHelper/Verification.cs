@@ -2,26 +2,30 @@
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
 using SocialMedia.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 
 namespace SocialMedia.Controller.ControllerHelper
 {
     public class Verification
     {
-        UserCredentialManager _userCredentialManager = UserCredentialManager.GetUserCredentialManager();
-        UserManager _userManager = UserManager.GetUserManager();
+        UserCredentialManager _userCredentialManager = UserCredentialManager.Instance;
+        UserManager _userManager = UserManager.Instance;
         
-        public UserBobj VerifyUser(string userIdentifyingValue, string userPassword, SignInView signInPage)
+        public UserBObj VerifyUser(string userIdentifyingValue, string userPassword, SignInView signInPage)
         {
             var userCredentials = _userCredentialManager.GetUserCredentials();
             try
             {
-                var userCredential = userCredentials.FirstOrDefault(userCredential => (userCredential.UserName == userIdentifyingValue) || (userCredential.MailId == userIdentifyingValue) || (userCredential.PhoneNumber == userIdentifyingValue));
+                var userToBeVerified = _userManager.GetUserBObjWithoutId(userIdentifyingValue);
+                UserCredential userCredential;
+                if (userToBeVerified != null)
+                    userCredential = _userCredentialManager.GetUserCredential(userToBeVerified.Id);
+                else
+                {
+                    userCredential = null;
+                }
+
                 if (userCredential != null && userCredential.Password == userPassword)
                 {
                     var user = _userManager.GetUserBobj(userCredential.UserId);

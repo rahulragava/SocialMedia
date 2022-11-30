@@ -10,7 +10,7 @@ namespace ConsoleApp
         public static void Main(string[] args)
         {
             new InitializeData().Initialize();
-            new ApplicationController().StartApplication();
+            ApplicationController.Instance.StartApplication();
         }
     }
 }

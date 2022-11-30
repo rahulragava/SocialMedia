@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.EntityModel
 {
-    public class PollChoice
+    public abstract class Post
     {
         public string Id { get; set; }
-        public string PostId { get; set; }
-        public string? Choice { get; set; }
+        public string PostedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? LastModifiedAt { get; set; }
+        public string? Title { get; set; }
 
-        public PollChoice()
+        public Post()
         {
             Id = Guid.NewGuid().ToString();
         }

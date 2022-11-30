@@ -1,13 +1,9 @@
-﻿using SocialMedia.DataSet;
+﻿using SocialMedia.Constant;
+using SocialMedia.DataSet;
 using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SocialMedia.Manager
 {
@@ -21,39 +17,40 @@ namespace SocialMedia.Manager
         {
         }
 
-        public static CommentManager GetCommentManager()
+        public static CommentManager Instance
         {
-            if (commentManager == null)
+            get
             {
-                lock (padlock)
+                if (commentManager == null)
                 {
-                    if (commentManager == null)
+                    lock (padlock)
                     {
-                        commentManager = new CommentManager();
+                        if (commentManager == null)
+                        {
+                            commentManager = new CommentManager();
+                        }
                     }
                 }
+                return commentManager;
             }
-            return commentManager;
         }
 
         ICommentSet commentSet = new CommentSet();
-        ReactionManager reactionManager = ReactionManager.GetReactionManager();
+        ReactionManager reactionManager = ReactionManager.Instance;
 
-        public List<CommentBobj> GetCommentBobjs()
+        public List<CommentBObj> GetCommentBobjs()
         {
-            List<CommentBobj> commentBobjs = new List<CommentBobj>();
+            List<CommentBObj> commentBobjs = new List<CommentBObj>();
             List<Comment> comments = commentSet.GetCommentList();
             List<Reaction> reactions = reactionManager.GetReaction();
-            CommentBobj commentBobj;
+            CommentBObj commentBobj;
 
             for (int i = 0; i < comments.Count; i++)
             {
-                var commentReactions = reactions.Where((reaction)
-                    => (reaction.ReactionOnType == ReactedOnType.PollPost) && (reaction.ReactionOnId == comments[i].Id)).ToList();
+                var commentReactions = reactions.Where((reaction) => reaction.ReactionOnId == comments[i].Id).ToList();
 
-                commentBobj = new CommentBobj();
+                commentBobj = new CommentBObj();
                 commentBobj.Id = comments[i].Id;
-                commentBobj.CommentedOn = comments[i].CommentedOn;
                 commentBobj.PostId = comments[i].PostId;
                 commentBobj.ParentCommentId = comments[i].ParentCommentId;
                 commentBobj.CommentedBy = comments[i].CommentedBy;
@@ -69,12 +66,12 @@ namespace SocialMedia.Manager
         }
 
         
-        public void AddComment(CommentBobj comment)
+        public void AddComment(CommentBObj comment)
         {
             commentSet.AddComment(ConvertCommentBobjToEntity(comment));
         }
 
-        public void RemoveComment(CommentBobj comment)
+        public void RemoveComment(CommentBObj comment)
         {
             if (comment.Reactions != null && comment.Reactions.Count > 0)
                 reactionManager.RemoveReactions(comment.Reactions);
@@ -82,13 +79,12 @@ namespace SocialMedia.Manager
             commentSet.RemoveComment(entityComment);
         }
 
-        private Comment ConvertCommentBobjToEntity(CommentBobj commentBobj)
+        private Comment ConvertCommentBobjToEntity(CommentBObj commentBobj)
         {
             Comment comment = new Comment();
             comment.Id = commentBobj.Id;   
             comment.ParentCommentId= commentBobj.ParentCommentId;
             comment.CommentedBy = commentBobj.CommentedBy;
-            comment.CommentedOn = commentBobj.CommentedOn;
             comment.CommentedAt = commentBobj.CommentedAt;
             comment.Content = commentBobj.Content;
             comment.PostId = commentBobj.PostId;
@@ -97,19 +93,21 @@ namespace SocialMedia.Manager
 
         }
 
-        public int GetLastCommentId()
-        {
-            var commentSets = commentSet.GetCommentList();
-            if (commentSets.Count > 0)
-            {
-                return commentSets[commentSets.Count - 1].Id;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-        internal void RemoveComments(List<CommentBobj> comments)
+        //public string GetNewCommentId()
+        //{
+        //    var commentSets = commentSet.GetCommentList();
+        //    if (commentSets.Count > 0)
+        //    {
+        //        var count = commentSets[commentSets.Count - 1].Id + 1 ;
+        //        return $"CO{count}";
+        //    }
+        //    else
+        //    {
+        //        var count = 1;
+        //        return $"CO{count}";
+        //    }
+        //}
+        internal void RemoveComments(List<CommentBObj> comments)
         {
             foreach (var comment in comments)
             {

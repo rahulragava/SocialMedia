@@ -2,12 +2,7 @@
 using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.Model.BusinessModel;
 using SocialMedia.Model.EntityModel;
-using SocialMedia.Model.EntityModel.EnumTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SocialMedia.Manager
 {
@@ -22,19 +17,22 @@ namespace SocialMedia.Manager
         {
         }
 
-        public static ReactionManager GetReactionManager()
+        public static ReactionManager Instance
         {
-            if (reactionManager == null)
+            get
             {
-                lock (padlock)
+                if (reactionManager == null)
                 {
-                    if (reactionManager == null)
+                    lock (padlock)
                     {
-                        reactionManager = new ReactionManager();
+                        if (reactionManager == null)
+                        {
+                            reactionManager = new ReactionManager();
+                        }
                     }
                 }
+                return reactionManager;
             }
-            return reactionManager;
         }
 
         public List<Reaction> GetReaction()
@@ -52,23 +50,11 @@ namespace SocialMedia.Manager
             userReactionSet.RemoveReaction(reaction);
         }
 
-        public Reaction ConvertCommentBobjToCommentEntityModel(CommentBobj commentBobj)
+        public Reaction ConvertCommentBobjToCommentEntityModel(CommentBObj commentBobj)
         {
             return new Reaction();
         }
 
-        public int GetLastReactionId()
-        {
-            var reactions = userReactionSet.RetrieveReactionList();
-            if (reactions.Count > 0)
-            {
-                return reactions[reactions.Count - 1].Id;
-            }
-            else
-            {
-                return 0;
-            }
-        }
         public void RemoveReactions(List<Reaction> reactions)
         {
             foreach (var reaction in reactions)

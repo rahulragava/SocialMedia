@@ -7,10 +7,9 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.BusinessModel
 {
-    public class PollPostBobj : PostBobj
+    public class PollPostBObj : PostBObj
     {
-        public string? Question { get; set; }
-        public List<PollChoiceBobj>? choices;
-
+        public string Question { get; set; }
+        public List<PollChoiceBObj>? choices;
     }
 }

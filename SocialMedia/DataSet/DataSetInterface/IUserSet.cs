@@ -5,7 +5,7 @@ namespace SocialMedia.DataSet.DataSetInterface
     public interface IUserSet
     {
         void AddUser(User user);
-        void RemoveUser(int userId);
+        void RemoveUser(string userId);
         List<User> RetrieveUsers();
     }
 }

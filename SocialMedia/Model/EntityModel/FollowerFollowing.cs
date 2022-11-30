@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.EntityModel
 {
-    public class UserPollChoiceSelection
+    public class FollowerFollowing
     {
-        public string ChoiceId { get; set; }
-        public string SelectedBy { get; set; }
-
+        public string FollowerId { get; set; }  
+        public string FollowingId { get; set; }
     }
 }

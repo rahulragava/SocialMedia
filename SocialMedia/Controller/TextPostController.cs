@@ -12,21 +12,51 @@ namespace SocialMedia.Controller
 {
     public class TextPostController
     {
+        private static readonly object _lock = new object();
+        private static TextPostController _instance;
+
         TextPostPage _textPostPage;
-        UserBobj _user;
+        UserBObj _user;
         Action _BackToPostController;
 
-        TextPostManager _textPostManager = TextPostManager.GetTextPostManager();
+        TextPostManager _textPostManager = TextPostManager.Instance;
 
-        public TextPostController(Action BackToPostController, UserBobj user)
+       
+
+        private TextPostController()
+        {
+
+        }
+
+        public static TextPostController GetInstance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new TextPostController();
+                        }
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        public void Initialize(Action BackToPostController)
         {
             _BackToPostController = BackToPostController;
-            _user = user;
-            _textPostPage = new TextPostPage();
+            _textPostPage= new TextPostPage();
+            InitiateTextPostController();
+
         }
 
         public void InitiateTextPostController()
         {
+            _user = ApplicationController.user;
             var userChoice = _textPostPage.InitiateTextPostPage();
 
             switch (userChoice)
@@ -48,10 +78,8 @@ namespace SocialMedia.Controller
 
         public void CreatePost()
         {
-            var lastPostId = _textPostManager.GetLastPostId();
             (string title, string content, DateTime createdAt) postContent = _textPostPage.CreatePostView();
-            TextPostBobj textPost = new TextPostBobj();
-            textPost.Id = lastPostId + 1;
+            TextPostBObj textPost = new TextPostBObj();
             textPost.Title = postContent.title;
             textPost.Content = postContent.content;
             textPost.CreatedAt = postContent.createdAt;
