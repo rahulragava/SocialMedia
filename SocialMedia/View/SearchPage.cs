@@ -1,10 +1,4 @@
-﻿using SocialMedia.Model.EntityModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SocialMedia.View
 {
     public class SearchPage
@@ -22,11 +16,33 @@ namespace SocialMedia.View
             return userChoice;
         }
 
-        public string SearchByName()
+        public string SearchByName(List<string> userNames)
         {
             "Enter user name : ".Print();
-            
-            return InputHelper.GetText();
+            var userName = InputHelper.GetText().ToLower();
+
+            List<string> containedUserNames = userNames.Select(u => u.ToLower()).Where(u => u.Contains(userName)).ToList();
+            int index = 1;
+            foreach (var containedUserName in containedUserNames)
+            {
+                //$"{index}. {containedUserName}".PrintLine();
+                $"{index}. {userNames.First(u => string.Equals(u, containedUserName, StringComparison.OrdinalIgnoreCase))}".PrintLine();
+                index++;
+            }
+            int userChoice;
+            if (containedUserNames.Any())
+            {
+                "Enter the index for select the user".PrintLine();
+                userChoice = InputHelper.UserInputChoice(containedUserNames.Count);
+
+                return userNames.First(u => string.Equals(u, containedUserNames[userChoice-1], StringComparison.OrdinalIgnoreCase));
+            }
+            else
+            {
+                UserNotFoundMessage();
+
+                return SearchByName(userNames);
+            }
         }
 
         public void UserNotFoundMessage()
@@ -35,9 +51,7 @@ namespace SocialMedia.View
             "Enter any key to continue .. ".PrintLine();
             InputHelper.GetPositiveInt(); 
         }
-
     }
-
 }
 
 
@@ -61,17 +75,3 @@ namespace SocialMedia.View
 
 
 
-//do
-//{
-//    "Enter a userName ".PrintLine();
-//    searchedUserName = InputHelper.GetText();
-//    if (userNames.Contains(searchedUserName))
-//    {
-//         isValid = true;
-//    }
-//    else
-//    {
-//        "No such user found".PrintLine();
-//    }
-//} while (!isValid);
-//return searchedUserName;

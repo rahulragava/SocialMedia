@@ -10,7 +10,7 @@ namespace SocialMedia.DataSet
 {
     public class UserReactionSet : IUserReactionSet
     {
-        private static List<Reaction> _userReactions = new List<Reaction>();
+        private static readonly List<Reaction> _userReactions = new();
         public void AddReactionSet(Reaction userReaction)
         {
             if (userReaction != null)

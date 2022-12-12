@@ -8,8 +8,10 @@ namespace SocialMedia.Controller
         private static readonly object _lock = new object();
         private static PostController _instance;
         PostPage _postPage;
-        PollPostController _pollPostController;
-        TextPostController _textPostController;
+        //PollPostController _pollPostController;
+        GenericPostController _genericPostController;
+        //TextPostController _textPostController;
+        LabelController _labelController;
         Action _BackToHomePageController;
 
         private PostController()
@@ -51,14 +53,15 @@ namespace SocialMedia.Controller
             switch (userChoice)
             {
                 case 1:
-                    _pollPostController = PollPostController.GetInstance;
-                    _pollPostController.Initialize(initiatePostController);
+                    _genericPostController = GenericPostController.GetInstance;
+                    _genericPostController.Initialize(initiatePostController);
                     break;
+
                 case 2:
-                    _textPostController = TextPostController.GetInstance;
-                    _textPostController.Initialize(initiatePostController);
-                   
+                    _labelController = LabelController.Instance;
+                    _labelController.Initialize(initiatePostController);
                     break;
+
                 case 3:
                     _BackToHomePageController?.Invoke();
                     break;

@@ -10,6 +10,6 @@ namespace SocialMedia.Model.BusinessModel
     public class PollPostBObj : PostBObj
     {
         public string Question { get; set; }
-        public List<PollChoiceBObj>? choices;
+        public List<PollChoiceBObj> Choices { get; set; }
     }
 }

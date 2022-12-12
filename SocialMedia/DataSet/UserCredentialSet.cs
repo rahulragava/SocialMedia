@@ -1,16 +1,11 @@
 ﻿using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.Model.EntityModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.DataSet
 {
     public class UserCredentialSet : IUserCredentialSet
     {
-        private static List<UserCredential> _userCredentials = new List<UserCredential>() { };
+        private static readonly List<UserCredential> _userCredentials = new();
 
         public List<UserCredential> RetrieveUsersCredential()
         {
@@ -20,7 +15,9 @@ namespace SocialMedia.DataSet
         public void AddUserCredential(UserCredential userCredential)
         {
             if (userCredential != null)
+            {
                 _userCredentials.Add(userCredential);
+            }
         }
         public void RemoveUserCredential(UserCredential userCredential)
         {

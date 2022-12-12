@@ -5,9 +5,9 @@ namespace SocialMedia.Model.BusinessModel
 {
     public class UserBObj : User
     {
-        public List<PollPostBObj>? PollPosts;
-        public List<TextPostBObj>? TextPosts;
-        public List<string> FollowersId;
-        public List<string> FollowingsId;
+        public List<PollPostBObj> PollPosts { get; set; }
+        public List<TextPostBObj> TextPosts { get; set; }
+        public List<string> FollowersId { get; set; }
+        public List<string> FollowingsId { get; set; }
     }
 }

@@ -9,9 +9,9 @@ namespace SocialMedia.DataSet.DataSetInterface
 {
     public interface IFollowerFollowingSet
     {
-        void AddFollowerFollowing(FollowerFollowing followerFollowing);
-        void RemoveFollowerFollowing(FollowerFollowing followerFollowing);
-        List<FollowerFollowing> GetFollowerFollowingList();
+        void AddFollowerFollowing(Follower followerFollowing);
+        void RemoveFollowerFollowing(Follower followerFollowing);
+        List<Follower> GetFollowerFollowingList();
 
     }
 }

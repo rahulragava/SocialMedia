@@ -31,9 +31,11 @@ namespace SocialMedia.View
             "1. View User Text Post".PrintLine();
             "2. View User Poll Post".PrintLine();
             "3. Follow/Unfollow".PrintLine();
-            "4. Exit to searchMenu".PrintLine();
+            "4. show followers list".PrintLine();
+            "5. show following list".PrintLine();
+            "6. Exit to searchMenu".PrintLine();
 
-            return InputHelper.UserInputChoice(4);
+            return InputHelper.UserInputChoice(6);
         }
 
 
@@ -45,8 +47,10 @@ namespace SocialMedia.View
             foreach (var textPost in textPosts)
             {
                 $"{indexCount}. ".PrintLine();
-                $"   Title    : {textPost.Title}".PrintLine();
-                $"   posted at    : {textPost.CreatedAt}".PrintLine();
+                $"   Title               : {textPost.Title}".PrintLine();
+                $"   posted at           : {textPost.CreatedAt}".PrintLine();
+                $"   Last modified at    : {textPost.LastModifiedAt}".PrintLine();
+
                 indexCount++;
             }
             InputHelper.ResetConsoleColor();
@@ -66,6 +70,7 @@ namespace SocialMedia.View
                 $"{indexCount}.  ".PrintLine();
                 $"   Title    : {pollPost.Title}".PrintLine();
                 $"   posted at    : {pollPost.CreatedAt}".PrintLine();
+                $"   Last modified at    : {pollPost.LastModifiedAt}".PrintLine();
 
                 indexCount++;
             }
@@ -130,7 +135,7 @@ namespace SocialMedia.View
             "".PrintLine();
             SplitContentAndShow(selectedPollPost.Question);
             var index = 1;
-            foreach(var option in selectedPollPost.choices)
+            foreach(var option in selectedPollPost.Choices)
             {
                 $"      {index}. {option.Choice}".PrintLine();
                 index++;
@@ -138,7 +143,7 @@ namespace SocialMedia.View
 
             "".PrintLine();
 
-            var userChoiceSelection = InputHelper.UserInputChoice(selectedPollPost.choices.Count);
+            var userChoiceSelection = InputHelper.UserInputChoice(selectedPollPost.Choices.Count);
             return userChoiceSelection;
 
         }
@@ -252,18 +257,18 @@ namespace SocialMedia.View
             "".PrintLine();
             "".PrintLine();
             var totalVotes = 0;
-            foreach (var choice in pollPostBobj.choices)
+            foreach (var choice in pollPostBobj.Choices)
             {
-                totalVotes += choice.choiceSelectedUsers.Count();
+                totalVotes += choice.ChoiceSelectedUsers.Count();
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
 
             int totalStar = 10;
-            foreach (var choice in pollPostBobj.choices)
+            foreach (var choice in pollPostBobj.Choices)
             {
                 "".PrintLine();
-                var selectedPercent = (choice.choiceSelectedUsers.Count() * 100) / totalVotes;
+                var selectedPercent = (choice.ChoiceSelectedUsers.Count() * 100) / totalVotes;
                 string voted = string.Concat(Enumerable.Repeat("0 ", (int)selectedPercent / 10));
                 string unvoted = string.Concat(Enumerable.Repeat("X ", totalStar - (int)selectedPercent / 10));
 
@@ -272,7 +277,6 @@ namespace SocialMedia.View
             "".PrintLine();
             InputHelper.ResetConsoleColor();
             $"total vote : {totalVotes}".PrintLine();
-            //InputHelper.ResetConsoleColor();
         }
 
         public int GetUserChoice()
@@ -312,6 +316,7 @@ namespace SocialMedia.View
 
             return (userChoice, commentIds);
         }
+
 
         public (string,string) ReplyView(List<string> commentIds)
         {
@@ -354,6 +359,39 @@ namespace SocialMedia.View
 
             var userChoice = InputHelper.UserInputChoice(2);
             return userChoice == 1 ? true : false;
+        }
+
+        internal (int, bool) ShowFollowersOrFollowingsList(List<string> userNames)
+        {
+            var index = 1;
+            foreach (var userName in userNames)
+            {
+                $"{index}. {userName}".PrintLine();
+                index++;
+            }
+            "".PrintLine();
+            "".PrintLine();
+            "1. select the user to go to their profile".PrintLine();
+            "2.Back to searched user profile ".PrintLine();
+            "Enter your choice : ".PrintLine();
+            var userChoice = InputHelper.UserInputChoice(2);
+            switch (userChoice)
+            {
+                case 1:
+                    var selectedUserIndex = InputHelper.UserInputChoice(userNames.Count);
+                    return (selectedUserIndex, true);
+                case 2:
+                    break;
+            }
+            return (0, false);
+
+        }
+
+        internal void UserCantFollowThemselfMessage()
+        {
+            "you cannot follow/unfollow yourself".PrintLine();
+            "press any number to get back".PrintLine();
+            var userChoice = InputHelper.GetPositiveInt();
         }
     }
 }

@@ -11,5 +11,10 @@ namespace SocialMedia.Model.EntityModel
         public string ChoiceId { get; set; }
         public string SelectedBy { get; set; }
 
+        public UserPollChoiceSelection(string choiceId, string selectedBy)
+        {
+            ChoiceId = choiceId;
+            SelectedBy = selectedBy;
+        }
     }
 }

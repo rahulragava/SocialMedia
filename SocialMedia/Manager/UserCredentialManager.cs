@@ -6,8 +6,8 @@ namespace SocialMedia.Manager
 {
     public sealed class UserCredentialManager
     {
-        private static UserCredentialManager? userCredentialManager ;
-        private static readonly object padlock = new object();
+        private static UserCredentialManager _userCredentialManager ;
+        private static readonly object _padlock = new object();
 
         UserCredentialManager()
         {
@@ -17,40 +17,40 @@ namespace SocialMedia.Manager
         {
             get
             {
-                if (userCredentialManager == null)
+                if (_userCredentialManager == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (userCredentialManager == null)
+                        if (_userCredentialManager == null)
                         {
-                            userCredentialManager = new UserCredentialManager();
+                            _userCredentialManager = new UserCredentialManager();
                         }
                     }
                 }
-                return userCredentialManager;
+                return _userCredentialManager;
             }
         }
 
-        IUserCredentialSet userCredentialSet = new UserCredentialSet();
+        IUserCredentialSet _userCredentialSet = new UserCredentialSet();
 
         public List<UserCredential> GetUserCredentials()
         {
-            return userCredentialSet.RetrieveUsersCredential();
+            return _userCredentialSet.RetrieveUsersCredential();
         } 
 
         public void AddUserCredential(UserCredential userCredential)
         {
-            userCredentialSet.AddUserCredential(userCredential);
+            _userCredentialSet.AddUserCredential(userCredential);
         }
 
         public void RemoveUserCredential(UserCredential userCredential)
         {
-            userCredentialSet.RemoveUserCredential(userCredential);
+            _userCredentialSet.RemoveUserCredential(userCredential);
         }
 
         internal UserCredential GetUserCredential(string userId)
         {
-            return userCredentialSet.RetrieveUsersCredential().Single(credential => credential.UserId == userId);
+            return _userCredentialSet.RetrieveUsersCredential().Single(credential => credential.UserId == userId);
         }
     }
 }

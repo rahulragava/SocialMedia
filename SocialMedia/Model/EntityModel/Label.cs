@@ -6,15 +6,18 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.EntityModel
 {
-    public class PollChoice
+    public class Label
     {
         public string Id { get; set; }
+        public string Name { get; set; }    
         public string PostId { get; set; }
-        public string Choice { get; set; }
 
-        public PollChoice()
+
+        public Label()
         {
             Id = Guid.NewGuid().ToString();
         }
     }
+
+   
 }

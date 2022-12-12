@@ -7,7 +7,7 @@ namespace SocialMedia.Manager
 {
     public sealed class PollChoiceManager
     {
-        private static PollChoiceManager? pollChoiceManager = null;
+        private static PollChoiceManager pollChoiceManager = null;
         private static readonly object padlock = new object();
 
         PollChoiceManager()
@@ -52,7 +52,7 @@ namespace SocialMedia.Manager
                 pollChoiceBobj.Id = pollChoices[i].Id;
                 pollChoiceBobj.Choice = pollChoices[i].Choice;
                 pollChoiceBobj.PostId = pollChoices[i].PostId;
-                pollChoiceBobj.choiceSelectedUsers = pollChoiceSelectedUsers;
+                pollChoiceBobj.ChoiceSelectedUsers = pollChoiceSelectedUsers;
 
                 pollChoiceBobjs.Add(pollChoiceBobj);
             }
@@ -84,9 +84,9 @@ namespace SocialMedia.Manager
         {
             foreach (var pollChoice in pollChoiceBobjList)
             {
-                if(pollChoice.choiceSelectedUsers != null && pollChoice.choiceSelectedUsers.Count > 0)
+                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Count > 0)
                 {
-                    userPollChoiceSelectionSet.AddUserPollChoiceSelections(pollChoice.choiceSelectedUsers);
+                    userPollChoiceSelectionSet.AddUserPollChoiceSelections(pollChoice.ChoiceSelectedUsers);
                 }
                 AddPollChoice(pollChoice);
             }
@@ -97,8 +97,8 @@ namespace SocialMedia.Manager
             
             foreach(var pollChoice in choices)
             {
-                if(pollChoice.choiceSelectedUsers != null && pollChoice.choiceSelectedUsers.Count > 0)
-                    userPollChoiceSelectionSet.RemovePollChoiceSelections(pollChoice.choiceSelectedUsers);
+                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Count > 0)
+                    userPollChoiceSelectionSet.RemovePollChoiceSelections(pollChoice.ChoiceSelectedUsers);
                 RemovePollChoice(ConvertPollChoiceBobjToEntityModel(pollChoice));
             }
         }

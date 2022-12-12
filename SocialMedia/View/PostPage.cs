@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SocialMedia.View
 {
     public class PostPage
@@ -13,11 +8,11 @@ namespace SocialMedia.View
             InputHelper.ClearConsole();
             "-----------  Post Page ---------------".PrintLine();
 
-            "1. Poll Post".PrintLine();
-            "2. Text Post".PrintLine();
+            "1. Post operation".PrintLine();
+            "2. Label".PrintLine();
             "3. Back to Home page menu".PrintLine();
 
-            var userChoice = InputHelper.UserInputChoice(3);
+            var userChoice = InputHelper.UserInputChoice(4);
             return userChoice;
         }
     }

@@ -28,7 +28,7 @@ namespace SocialMedia.Controller.ControllerHelper
 
                 if (userCredential != null && userCredential.Password == userPassword)
                 {
-                    var user = _userManager.GetUserBobj(userCredential.UserId);
+                    var user = _userManager.GetUserBObj(userCredential.UserId);
                     if (user != null)
                         return user;
                 }

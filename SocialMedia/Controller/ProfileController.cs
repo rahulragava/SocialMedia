@@ -53,7 +53,7 @@ namespace SocialMedia.Controller
         public void InitiateProfileController() 
         {
             _searchedUser = UserManager.Instance.GetNonNullUserBObj(_searchedUserId);
-            _viewingUser = ApplicationController.user;
+            _viewingUser = ApplicationController.Instance.User;
 
             var userChoice = _profilePage.InitiateProfilePage(_searchedUser);
 
@@ -61,43 +61,112 @@ namespace SocialMedia.Controller
 
             switch (userChoice)
             {
-                case 1: // view user's text post
+                case 1: // view User's text post
                     UserTextPostComponent();
                     break;
-                case 2: // view user's poll post
+                case 2: // view User's poll post
                     UserPollPostComponent();
                     break;
                 case 3: //follow/unfollow
                     CheckAndUpdateFollowing();
                     break;
-                case 4: //back to search menu 
+                case 4: //followers list
+                    ShowFollowersList();
+                    break;
+                case 5: //following list
+                    ShowFollowingList();
+                    break;
+                case 6: //back to search menu 
                     BackToSearchController();
                     break;
+            }
+        }
+
+        private void ShowFollowingList()
+        {
+            var userManager = UserManager.Instance;
+            var followings = new List<UserBObj>();
+
+            for (int i = 0; i < _searchedUser.FollowersId.Count; i++)
+            {
+                followings.Add(userManager.GetNonNullUserBObj(_searchedUser.FollowingsId[i]));
+
+            }
+            var userNames = followings.Select(following => following.UserName).ToList();
+            (int userSelectedIndex, bool isSelectedUserProfile) = _profilePage.ShowFollowersOrFollowingsList(userNames);
+            if (isSelectedUserProfile)
+            {
+                Initialize(_BackToSearchController, followings[userSelectedIndex - 1].Id);
+            }
+            else
+            {
+                InitiateProfileController();
+            }
+        }
+
+        private void ShowFollowersList()
+        {
+            var userManager = UserManager.Instance;
+            var followers = new List<UserBObj>();
+
+            for (int i = 0; i < _searchedUser.FollowersId.Count; i++)
+            {
+                followers.Add(userManager.GetNonNullUserBObj(_searchedUser.FollowersId[i]));
+
+            }
+            var userNames = followers.Select(follower => follower.UserName).ToList();
+            (int userSelectedIndex, bool isSelectedUserProfile) = _profilePage.ShowFollowersOrFollowingsList(userNames);
+            if (isSelectedUserProfile)
+            {
+                Initialize(_BackToSearchController, followers[userSelectedIndex - 1].Id);
+            }
+            else
+            {
+                InitiateProfileController();
             }
         }
 
         private void CheckAndUpdateFollowing() 
         {
             var isFollowed = _searchedUser.FollowersId.Exists(followerId => followerId == _viewingUser.Id);
-            if (isFollowed)
+            if (isFollowed) //already following, now will for unfollowing
             {
-                var isConfirmed = _profilePage.ConfirmationMessageToUnfollow();
-                if (isConfirmed)
+
+                if (_searchedUser.Id == _viewingUser.Id)
                 {
-                    UserManager.Instance.Unfollow(_viewingUser.Id, _searchedUser.Id);
-                    _viewingUser.FollowingsId.Remove(_searchedUserId);
-                    _searchedUser.FollowersId.Remove(_viewingUser.Id);
+                    _profilePage.UserCantFollowThemselfMessage();
                 }
+                else
+                {
+                    var isConfirmed = _profilePage.ConfirmationMessageToUnfollow();
+
+                    if (isConfirmed)
+                    {
+
+                        UserManager.Instance.Unfollow(_viewingUser.Id, _searchedUser.Id);
+                        _viewingUser.FollowingsId.Remove(_searchedUserId);
+                        _searchedUser.FollowersId.Remove(_viewingUser.Id);
+                    }
+                }
+                
             }
-            else
+            else // not followed yet, 
             {
-               var isConfirmed = _profilePage.ConfirmationMessageToFollow();
-                if (isConfirmed)
+                if (_searchedUser.Id == _viewingUser.Id)
                 {
-                    UserManager.Instance.Follow(_viewingUser.Id, _searchedUser.Id);
-                    _viewingUser.FollowingsId.Add(_searchedUserId);
-                    _searchedUser.FollowersId.Add(_viewingUser.Id);
+                    _profilePage.UserCantFollowThemselfMessage();
                 }
+                else
+                {
+                    var isConfirmed = _profilePage.ConfirmationMessageToFollow();
+                    if (isConfirmed)
+                    {
+                        UserManager.Instance.Follow(_viewingUser.Id, _searchedUser.Id);
+                        _viewingUser.FollowingsId.Add(_searchedUserId);
+                        _searchedUser.FollowersId.Add(_viewingUser.Id);
+                    }
+                }
+               
             }
             InitiateProfileController();
         }
@@ -116,7 +185,6 @@ namespace SocialMedia.Controller
 
                         CommentBObj comment = new CommentBObj();
                         var commentContent = _profilePage.GetUserComment();
-                        //var newCommentId = _commentManager.GetNewCommentId();
 
                         comment.PostId = selectedTextPost.Id;
                         comment.ParentCommentId = null;
@@ -154,9 +222,9 @@ namespace SocialMedia.Controller
                 
                 (PollPostBObj selectedPollPost,int pollPostIndex) pollPostBobj = _profilePage.ViewUserPollPosts(_searchedUser.PollPosts);
                 var isUserYetToSelect = true;
-                foreach(var choice in pollPostBobj.selectedPollPost.choices)
+                foreach(var choice in pollPostBobj.selectedPollPost.Choices)
                 {
-                    var userAlreadySelected = choice.choiceSelectedUsers.SingleOrDefault(choice => choice.SelectedBy == _viewingUser.Id);
+                    var userAlreadySelected = choice.ChoiceSelectedUsers.SingleOrDefault(choice => choice.SelectedBy == _viewingUser.Id);
                     if(userAlreadySelected != null)
                     {
                         isUserYetToSelect = false;
@@ -167,12 +235,10 @@ namespace SocialMedia.Controller
                 if (isUserYetToSelect)
                 {
                     var userSelectedOptionId = _profilePage.ViewUserPollPost(pollPostBobj.selectedPollPost);
-                    var selectedOption = pollPostBobj.selectedPollPost.choices[userSelectedOptionId-1];
-                    var userSelectionPollChoice = new UserPollChoiceSelection();
-                    userSelectionPollChoice.SelectedBy = _viewingUser.Id;
-                    userSelectionPollChoice.ChoiceId = selectedOption.Id;
+                    var selectedOption = pollPostBobj.selectedPollPost.Choices[userSelectedOptionId-1];
+                    var userSelectionPollChoice = new UserPollChoiceSelection(selectedOption.Id, _viewingUser.Id);
 
-                    _searchedUser.PollPosts[pollPostBobj.pollPostIndex].choices.Single(choice => choice.Id == selectedOption.Id).choiceSelectedUsers.Add(userSelectionPollChoice);
+                    _searchedUser.PollPosts[pollPostBobj.pollPostIndex].Choices.Single(choice => choice.Id == selectedOption.Id).ChoiceSelectedUsers.Add(userSelectionPollChoice);
                     PollChoiceManager.Instance.AddChoiceSelectedUser(userSelectionPollChoice);
 
                     _profilePage.ViewPollResult(pollPostBobj.selectedPollPost);
@@ -180,9 +246,7 @@ namespace SocialMedia.Controller
                 }
                 else
                 {
-                    //_profilePage.ViewReactions();
                     _profilePage.ViewPollResult(pollPostBobj.selectedPollPost);
-
                 }
 
                 var userChoice = _profilePage.GetUserChoice();
@@ -221,7 +285,6 @@ namespace SocialMedia.Controller
 
         private void CommentComponent(PostBObj selectedPostBobj)
         {
-            //var selectedPostBObj = 
             (int userChoice, List<string> commentIds) = _profilePage.CommentView(selectedPostBobj);
             CommentBObj commentBobj = new CommentBObj();
             switch (userChoice)
@@ -263,7 +326,6 @@ namespace SocialMedia.Controller
                     RemoveReaction(postBobj);
                     break;
                 case 3:
-                    //InitiateProfileController();
                     break;
             }
         }
@@ -282,7 +344,6 @@ namespace SocialMedia.Controller
             {
                 _profilePage.NeverReactedMessage();
             }
-            //InitiateProfileController();
 
 
         }
@@ -323,7 +384,6 @@ namespace SocialMedia.Controller
                     RemoveCommentReaction(commentBobj);
                     break;
                 case 3:
-                    //InitiateProfileController();
                     break;
             }
         }
@@ -347,13 +407,10 @@ namespace SocialMedia.Controller
         private void AddCommentReaction(CommentBObj commentBobj)
         {
             var userReaction = _profilePage.GetUserReaction();
-            //var lastPostId = _reactionManager.GetLastReactionId();
             var reaction = new Reaction();
-            //reaction.Id = lastPostId + 1;
             reaction.ReactedBy = _viewingUser.Id;
             reaction.ReactionOnId = commentBobj.Id;
             reaction.reactionType = userReaction;
-            //reaction.ReactionOnType = ReactedOnType.Comment;
             if(commentBobj.Reactions == null )
             {
                 commentBobj.Reactions = new List<Reaction>();   
@@ -361,7 +418,6 @@ namespace SocialMedia.Controller
             commentBobj.Reactions.Add(reaction);
             _reactionManager.AddReaction(reaction);
             _profilePage.SuccessfullyWorkDoneMessage("Added");
-            //InitiateProfileController();
 
         }
 
@@ -369,7 +425,5 @@ namespace SocialMedia.Controller
         {
             _BackToSearchController?.Invoke();
         }
-
-        
     }
 }

@@ -13,5 +13,10 @@ namespace SocialMedia.Model.EntityModel
 
         public string Password { get; set; }
 
+        public UserCredential(string userId, string password)        {
+            UserId = userId;
+            Password = password;
+        }
+
     }
 }

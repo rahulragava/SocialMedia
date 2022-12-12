@@ -11,6 +11,6 @@ namespace SocialMedia.Model.BusinessModel
     public class CommentBObj: Comment
     {
         public int Depth { get; set; }
-        public List<Reaction>? Reactions { get; set; }
+        public List<Reaction> Reactions { get; set; }
     }
 }

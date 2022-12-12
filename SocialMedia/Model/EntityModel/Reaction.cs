@@ -8,7 +8,6 @@ namespace SocialMedia.Model.EntityModel
         public string ReactedBy { get; set; }
         public string ReactionOnId { get; set; }
         public ReactionType reactionType { get; set; }  
-        //public ReactedOnType ReactionOnType { get; set; }
 
         public Reaction()
         {

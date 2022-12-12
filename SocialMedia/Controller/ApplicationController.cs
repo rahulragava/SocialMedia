@@ -10,8 +10,7 @@ namespace SocialMedia.Controller
         private readonly static object _padLock = new object();
         readonly WelcomePage _welcomePage = new WelcomePage();
         readonly SignInView _signInPage = new SignInView();
-        readonly HomePage _homePage = new HomePage();
-        public static UserBObj user;
+        public UserBObj User;
 
 
         HomePageController _homePageController;
@@ -42,17 +41,16 @@ namespace SocialMedia.Controller
             _welcomePage.InitialPage();            
             Verification verification = new Verification();
             int choice = InputHelper.UserInputChoice(2);
-            //UserBObj user;
 
             switch (choice)
             {
                 case 1:  //sign-in
                     (string userIdentityValue, string Password) = _signInPage.SignInPage();
-                    user = verification.VerifyUser(userIdentityValue, Password, _signInPage);
+                    User = verification.VerifyUser(userIdentityValue, Password, _signInPage);
                     Action startApplication = StartApplication;
-                    if (user != null)
+                    if (User != null)
                     {
-                        _signInPage.SuccessLoggedInMessage(user.UserName);
+                        _signInPage.SuccessLoggedInMessage(User.UserName);
                         _homePageController = HomePageController.GetInstance;
                         _homePageController.InitiateHomePageController(startApplication);
                     }

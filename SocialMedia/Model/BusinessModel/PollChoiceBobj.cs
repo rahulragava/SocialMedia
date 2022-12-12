@@ -9,6 +9,6 @@ namespace SocialMedia.Model.BusinessModel
 {
     public class PollChoiceBObj : PollChoice
     {
-        public List<UserPollChoiceSelection>? choiceSelectedUsers;
+        public List<UserPollChoiceSelection> ChoiceSelectedUsers { get; set; }
     }
 }

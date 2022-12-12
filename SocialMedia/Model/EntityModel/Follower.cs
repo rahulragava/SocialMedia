@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SocialMedia.Model.EntityModel
 {
-    public class FollowerFollowing
+    public class Follower
     {
         public string FollowerId { get; set; }  
         public string FollowingId { get; set; }

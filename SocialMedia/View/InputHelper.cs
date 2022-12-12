@@ -16,8 +16,8 @@ namespace SocialMedia.View
 
             try
             {
-                index = GetInt();
-                if (!(index <= endIndex && index > 0)) throw new Exception();
+                index = GetPositiveInt();
+                if (!(index <= endIndex)) throw new Exception();
             }
             catch (Exception)
             {
@@ -26,6 +26,26 @@ namespace SocialMedia.View
             }
 
             return index ;
+        }
+
+        public static char UserInputChoice(int startIndex, int endIndex)
+        {
+            char index;
+            "Enter corresponding index ".PrintLine();
+
+            try
+            {
+                index = GetChar();
+                var indexNumber = (int)index;
+                if (!(index < endIndex && index >= startIndex)) throw new Exception();
+
+            }
+            catch (Exception)
+            {
+                "please enter correct value in range ".PrintLine();
+                return UserInputChoice(startIndex,endIndex);
+            }
+            return index;
         }
 
         public static DateTime GetUserDateTimeInformation()

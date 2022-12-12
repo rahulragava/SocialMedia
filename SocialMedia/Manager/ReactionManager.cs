@@ -8,10 +8,10 @@ namespace SocialMedia.Manager
 {
     public sealed class ReactionManager
     {
-        IUserReactionSet userReactionSet = new UserReactionSet();
+        readonly IUserReactionSet _userReactionSet = new UserReactionSet();
 
-        private static ReactionManager? reactionManager = null;
-        private static readonly object padlock = new object();
+        private static ReactionManager _reactionManager = null;
+        private static readonly object _padlock = new object();
 
         ReactionManager()
         {
@@ -21,33 +21,33 @@ namespace SocialMedia.Manager
         {
             get
             {
-                if (reactionManager == null)
+                if (_reactionManager == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (reactionManager == null)
+                        if (_reactionManager == null)
                         {
-                            reactionManager = new ReactionManager();
+                            _reactionManager = new ReactionManager();
                         }
                     }
                 }
-                return reactionManager;
+                return _reactionManager;
             }
         }
 
         public List<Reaction> GetReaction()
         {
-            return userReactionSet.RetrieveReactionList();
+            return _userReactionSet.RetrieveReactionList();
         }
 
         public void AddReaction(Reaction reaction)
         {
-            userReactionSet.AddReactionSet(reaction);
+            _userReactionSet.AddReactionSet(reaction);
         }
 
         public void RemoveReaction(Reaction reaction)
         {
-            userReactionSet.RemoveReaction(reaction);
+            _userReactionSet.RemoveReaction(reaction);
         }
 
         public Reaction ConvertCommentBobjToCommentEntityModel(CommentBObj commentBobj)

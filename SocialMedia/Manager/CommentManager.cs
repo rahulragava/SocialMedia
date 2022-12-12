@@ -10,8 +10,8 @@ namespace SocialMedia.Manager
     public sealed class CommentManager
     {
 
-        private static CommentManager? commentManager = null;
-        private static readonly object padlock = new object();
+        private static CommentManager _commentManager = null;
+        private static readonly object _padlock = new object();
 
         CommentManager()
         {
@@ -21,28 +21,28 @@ namespace SocialMedia.Manager
         {
             get
             {
-                if (commentManager == null)
+                if (_commentManager == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (commentManager == null)
+                        if (_commentManager == null)
                         {
-                            commentManager = new CommentManager();
+                            _commentManager = new CommentManager();
                         }
                     }
                 }
-                return commentManager;
+                return _commentManager;
             }
         }
 
-        ICommentSet commentSet = new CommentSet();
-        ReactionManager reactionManager = ReactionManager.Instance;
+        readonly ICommentSet _commentSet = new CommentSet();
+        readonly ReactionManager _reactionManager = ReactionManager.Instance;
 
-        public List<CommentBObj> GetCommentBobjs()
+        public List<CommentBObj> GetCommentBObjs()
         {
-            List<CommentBObj> commentBobjs = new List<CommentBObj>();
-            List<Comment> comments = commentSet.GetCommentList();
-            List<Reaction> reactions = reactionManager.GetReaction();
+            List<CommentBObj> commentBObjs = new List<CommentBObj>();
+            List<Comment> comments = _commentSet.GetCommentList();
+            List<Reaction> reactions = _reactionManager.GetReaction();
             CommentBObj commentBobj;
 
             for (int i = 0; i < comments.Count; i++)
@@ -59,27 +59,27 @@ namespace SocialMedia.Manager
                 commentBobj.Reactions = reactions;
                 
                 
-                commentBobjs.Add(commentBobj);
+                commentBObjs.Add(commentBobj);
             }
 
-            return commentBobjs;
+            return commentBObjs;
         }
 
         
         public void AddComment(CommentBObj comment)
         {
-            commentSet.AddComment(ConvertCommentBobjToEntity(comment));
+            _commentSet.AddComment(ConvertCommentBObjToEntity(comment));
         }
 
         public void RemoveComment(CommentBObj comment)
         {
             if (comment.Reactions != null && comment.Reactions.Count > 0)
-                reactionManager.RemoveReactions(comment.Reactions);
-            var entityComment = ConvertCommentBobjToEntity(comment);
-            commentSet.RemoveComment(entityComment);
+                _reactionManager.RemoveReactions(comment.Reactions);
+            var entityComment = ConvertCommentBObjToEntity(comment);
+            _commentSet.RemoveComment(entityComment);
         }
 
-        private Comment ConvertCommentBobjToEntity(CommentBObj commentBobj)
+        private Comment ConvertCommentBObjToEntity(CommentBObj commentBobj)
         {
             Comment comment = new Comment();
             comment.Id = commentBobj.Id;   
@@ -93,21 +93,7 @@ namespace SocialMedia.Manager
 
         }
 
-        //public string GetNewCommentId()
-        //{
-        //    var commentSets = commentSet.GetCommentList();
-        //    if (commentSets.Count > 0)
-        //    {
-        //        var count = commentSets[commentSets.Count - 1].Id + 1 ;
-        //        return $"CO{count}";
-        //    }
-        //    else
-        //    {
-        //        var count = 1;
-        //        return $"CO{count}";
-        //    }
-        //}
-        internal void RemoveComments(List<CommentBObj> comments)
+        public void RemoveComments(List<CommentBObj> comments)
         {
             foreach (var comment in comments)
             {

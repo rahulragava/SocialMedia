@@ -16,6 +16,7 @@ namespace SocialMedia.Controller
         
         SearchPage searchPage;
         ProfileController _profileController;
+        UserManager _userManager = UserManager.Instance;
 
         Action _BackToHomePageController;
 
@@ -67,8 +68,10 @@ namespace SocialMedia.Controller
 
         public void Search()
         {
-            var userName = searchPage.SearchByName();
-            var searchedUser = UserManager.Instance.GetUserBObjWithoutId(userName);
+            var userNames = _userManager.GetUserNames();
+            var userName = searchPage.SearchByName(userNames);
+            
+            var searchedUser = _userManager.GetUserBObjWithoutId(userName);
             Action initiateSearchController = SearchControllerInteraction;
             if(searchedUser != null)
             {

@@ -10,30 +10,8 @@ namespace SocialMedia.DataSet
 {
     public class UserSet : IUserSet
     {
-        private static List<User>  _users = new List<User>();
-        //private static readonly object padLock = new object();
-        //private static IUserSet userSet;
-
-        //private UserSet() { }
-
-        //public static IUserSet GetInstance
-        //{
-        //    get
-        //    {
-        //        if (userSet == null)
-        //        {
-        //            lock (padLock)
-        //            {
-        //                if (userSet == null)
-        //                {
-        //                    userSet = new UserSet();
-        //                }
-        //            }
-        //        }
-        //        return userSet;
-        //    }
-        //}
-
+       private static readonly List<User>  _users = new();
+        
        public List<User> RetrieveUsers()
         {
             return _users.DistinctBy(user => user.Id).ToList();
@@ -43,7 +21,9 @@ namespace SocialMedia.DataSet
         {
 
             if(user != null)
+            {
                 _users.Add(user);
+            }
         }
         public void RemoveUser(string userId)
         {

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SocialMedia.View
 {
     public class SignInView
@@ -20,7 +14,7 @@ namespace SocialMedia.View
             return (UserIdentityValue, Password);
         }
        
-        public (string?, string?, bool) InvalidUser()
+        public (string, string, bool) InvalidUser()
         {
             "User Identification is wrong, try again !".PrintLine();
             bool GoBack = false;

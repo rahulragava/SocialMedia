@@ -10,18 +10,22 @@ namespace SocialMedia.DataSet
 {
     public class PollChoiceSet : IPollChoiceSet
     {
-        private List<PollChoice> _pollChoices = new List<PollChoice>();
+        private readonly List<PollChoice> _pollChoices = new();
 
         public void AddPollChoice(PollChoice pollChoice)
         {
             if(pollChoice != null)
+            {
                 _pollChoices.Add(pollChoice);
+            }
         }
 
         public void RemovePollChoice(PollChoice pollChoice)
         {
             if(pollChoice != null)
+            {
                 _pollChoices.Remove(pollChoice);
+            }
            
         }
 

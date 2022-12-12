@@ -5,12 +5,14 @@ namespace SocialMedia.DataSet
 {
     public class CommentSet : ICommentSet
     {
-        private List<Comment> _comments = new List<Comment>();
+        private readonly List<Comment> _comments = new();
 
         public void AddComment(Comment comment)
         {
             if(comment != null)
+            {
                 _comments.Add(comment);
+            }
         }
 
         public List<Comment> GetCommentList()
@@ -21,7 +23,9 @@ namespace SocialMedia.DataSet
         public void RemoveComment(Comment comment)
         {
             if(comment != null)
+            {
                 _comments.Remove(comment);
+            }   
         }
       
     }

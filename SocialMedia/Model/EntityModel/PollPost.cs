@@ -9,7 +9,7 @@ namespace SocialMedia.Model.EntityModel
 {
     public class PollPost : Post
     {
-        public string? Question { get; set; }
+        public string Question { get; set; }
     }
     
 }

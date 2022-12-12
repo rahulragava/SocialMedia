@@ -5,13 +5,13 @@ namespace SocialMedia.DataSet
 {
     public class UserPollChoiceSelectionSet : IUserPollChoiceSelectionSet
     {
-        private List<UserPollChoiceSelection> _userPollChoiceSelections = new List<UserPollChoiceSelection>();
+        private readonly List<UserPollChoiceSelection> _userPollChoiceSelections = new();
         public void AddUserPollChoiceSelection(UserPollChoiceSelection userPollChoiceSelection)
         {
             _userPollChoiceSelections.Add(userPollChoiceSelection); 
         }
 
-        public void AddUserPollChoiceSelections(List<UserPollChoiceSelection>? choiceSelectedUsers)
+        public void AddUserPollChoiceSelections(List<UserPollChoiceSelection> choiceSelectedUsers)
         {
             if(choiceSelectedUsers != null)
             {
@@ -22,7 +22,7 @@ namespace SocialMedia.DataSet
             }
         }
 
-        public void RemovePollChoiceSelections(List<UserPollChoiceSelection>? choiceSelectedUsers)
+        public void RemovePollChoiceSelections(List<UserPollChoiceSelection> choiceSelectedUsers)
         {
             if(choiceSelectedUsers != null)
             {
