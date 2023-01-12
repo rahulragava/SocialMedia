@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-
-namespace SocialMedia.View
+﻿namespace SocialMedia.View
 {
     public class InputHelper
     {
@@ -47,60 +40,6 @@ namespace SocialMedia.View
             }
             return index;
         }
-
-        public static DateTime GetUserDateTimeInformation()
-        {
-            DateTime date;
-            "".PrintLine();
-            "Enter Date (YYYY/MM/dd): ".Print();
-            "".PrintLine();
-            try
-            {
-                var input = Console.ReadLine() ?? "";
-                date = DateTime.Parse(input.Trim());
-            }
-            catch (Exception)
-            {
-                "Please Enter Date In Specified Format  (dd/MM/YYYY)".PrintLine();
-                return GetUserDateTimeInformation();
-            }
-
-            return date;
-        }
-
-        //public static IEnumerable<int> GetCorrespondingUserIndexes(int endIndex)
-        //{
-        //    "".PrintLine();
-        //    var userInput = "";
-        //    "Enter Users Index in Corresponding Format :".PrintLine();
-        //    " num/num/num/".PrintLine();
-        //    var userInputIndexes = new List<int>();
-        //    try
-        //    {
-        //        userInput = Console.ReadLine() ?? "";
-        //        var indexes = userInput.Split('/', StringSplitOptions.TrimEntries);
-        //        foreach (var index in indexes)
-        //        {
-        //            var num = Convert.ToInt32(index);
-        //            if (num > endIndex || num <= 0)
-        //            {
-        //                throw new FormatException();
-        //            }
-        //            userInputIndexes.Add(num - 1);
-        //        }
-
-        //    }
-        //    catch (Exception)
-        //    {
-        //        "".PrintLine();
-        //        "Please Enter values Within the range and in Correct Format ".PrintLine();
-        //        return GetCorrespondingUserIndexes(endIndex);
-
-        //    }
-
-        //    return userInputIndexes;
-
-        //}
 
         public static string GetText()
         {

@@ -225,9 +225,9 @@ namespace SocialMedia.Manager
             return postBObjs;
         }
 
-        public List<CommentBObj> GetSortedComments(List<CommentBObj> textPostCommentBobjs)
+        public List<CommentBObj> GetSortedComments(List<CommentBObj> postCommentBObjs)
         {
-            List<CommentBObj> comments = textPostCommentBobjs;
+            List<CommentBObj> comments = postCommentBObjs;
             var sortedComments = new List<CommentBObj>();
 
             List<CommentBObj> levelZeroComments = comments.Where(x => x.ParentCommentId == null).OrderBy(x => x.CommentedAt).ToList();
