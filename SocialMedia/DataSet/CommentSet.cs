@@ -24,7 +24,7 @@ namespace SocialMedia.DataSet
         {
             if(comment != null)
             {
-                _comments.Remove(comment);
+                _comments.Remove(_comments.First(c => c.Id == comment.Id));
             }   
         }
       

@@ -66,7 +66,7 @@ namespace SocialMedia.View
         public void SuccessfullyWorkDoneMessage(string message)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            $"Poll post is successfully {message} ".PrintLine();
+            $"post is successfully {message} ".PrintLine();
             InputHelper.ResetConsoleColor();
             "".PrintLine();
             "press any number to continue".PrintLine();

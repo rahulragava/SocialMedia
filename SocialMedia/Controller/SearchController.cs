@@ -83,6 +83,7 @@ namespace SocialMedia.Controller
                 searchPage.UserNotFoundMessage();
                 SearchControllerInteraction();
             }
+        
         }
     }
 }

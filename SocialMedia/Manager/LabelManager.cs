@@ -76,5 +76,18 @@ namespace SocialMedia.Manager
             }
             _labelSet.RemoveLabel(label);
         }
+
+        public void RemoveLabelByPostId(string PostId)
+        {
+            var labels = _labelSet.GetLabels();
+            var removableLabels = labels.Where(label => label.PostId == PostId).ToList();
+            if (!removableLabels.Any())
+                return;
+
+            foreach(var label in removableLabels)
+            {
+                RemoveLabel(label);
+            }
+        }
     }
 }

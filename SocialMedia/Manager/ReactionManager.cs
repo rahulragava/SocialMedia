@@ -50,17 +50,25 @@ namespace SocialMedia.Manager
             _userReactionSet.RemoveReaction(reaction);
         }
 
-        public Reaction ConvertCommentBobjToCommentEntityModel(CommentBObj commentBobj)
-        {
-            return new Reaction();
-        }
 
         public void RemoveReactions(List<Reaction> reactions)
         {
-            foreach (var reaction in reactions)
+            var Reactions = reactions;
+            if (reactions.Count <= 0 || !(reactions.Any())) return;
+
+            while (true)
             {
-                RemoveReaction(reaction);
+                for(int i= 0; i < Reactions.Count; i++)
+                {
+                    RemoveReaction(Reactions[i]);
+                    break;
+                }
+                if (Reactions.Count == 0) break;
             }
+            //foreach (var reaction in Reactions)
+            //{
+            //    RemoveReaction(reaction);
+            //}
         }
     }
 }

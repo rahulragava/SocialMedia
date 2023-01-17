@@ -36,43 +36,6 @@ namespace SocialMedia.Manager
         readonly IFollowerFollowingSet _followerFollowingSet = new FollowerSet();
         readonly PostManager _postManager = PostManager.Instance;
 
-        public List<UserBObj> GetUserBObjs()
-        {
-            List<UserBObj> userBobjs = new List<UserBObj>();
-            var textPosts = _postManager.GetPostBObjs().Where(post => post is TextPostBObj).Select(post => post as TextPostBObj).ToList();
-            var pollPosts = _postManager.GetPostBObjs().Where(post => post is PollPostBObj).Select(post => post as PollPostBObj).ToList();
-            List<Follower> followerFollowing = _followerFollowingSet.GetFollowerFollowingList();
-            List<User> users = _userSet.RetrieveUsers();
-            UserBObj userBobj;
-
-            for(int i = 0; i < users.Count; i++)
-            {
-                userBobj = new UserBObj();
-                var userTextPostBobjs = textPosts.Where((textPost) => textPost.PostedBy == users[i].Id).ToList();
-                var userPollPostBobjs = pollPosts.Where((pollPost) => pollPost.PostedBy == users[i].Id).ToList();
-                var followersId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowingId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
-                var followingsId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowerId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
-
-                userBobj.Id = users[i].Id;
-                userBobj.UserName = users[i].UserName;
-                userBobj.FirstName = users[i].FirstName;
-                userBobj.LastName = users[i].LastName;
-                userBobj.Gender = users[i].Gender;
-                userBobj.CreatedAt = users[i].CreatedAt;
-                userBobj.MaritalStatus = users[i].MaritalStatus;
-                userBobj.Occupation = users[i].Occupation;
-                userBobj.Education = users[i].Education;
-                userBobj.Place = users[i].Place;
-                userBobj.TextPosts = userTextPostBobjs;
-                userBobj.PollPosts = userPollPostBobjs;
-                userBobj.FollowersId = followersId;
-                userBobj.FollowingsId = followingsId;
-
-                userBobjs.Add(userBobj);
-            }
-
-            return userBobjs;
-        }
        
         public void AddUser(User user)
         {
@@ -186,6 +149,43 @@ namespace SocialMedia.Manager
             _followerFollowingSet.AddFollowerFollowing(followerFollowing);
         }
 
+        public List<UserBObj> GetUserBObjs()
+        {
+            List<UserBObj> userBobjs = new List<UserBObj>();
+            var textPosts = _postManager.GetPostBObjs().Where(post => post is TextPostBObj).Select(post => post as TextPostBObj).ToList();
+            var pollPosts = _postManager.GetPostBObjs().Where(post => post is PollPostBObj).Select(post => post as PollPostBObj).ToList();
+            List<Follower> followerFollowing = _followerFollowingSet.GetFollowerFollowingList();
+            List<User> users = _userSet.RetrieveUsers();
+            UserBObj userBobj;
+
+            for(int i = 0; i < users.Count; i++)
+            {
+                userBobj = new UserBObj();
+                var userTextPostBobjs = textPosts.Where((textPost) => textPost.PostedBy == users[i].Id).ToList();
+                var userPollPostBobjs = pollPosts.Where((pollPost) => pollPost.PostedBy == users[i].Id).ToList();
+                var followersId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowingId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowerId).ToList();
+                var followingsId = followerFollowing.Where(_followerFollowing => _followerFollowing.FollowerId == users[i].Id).Select(_followerFollowing => _followerFollowing.FollowingId).ToList();
+
+                userBobj.Id = users[i].Id;
+                userBobj.UserName = users[i].UserName;
+                userBobj.FirstName = users[i].FirstName;
+                userBobj.LastName = users[i].LastName;
+                userBobj.Gender = users[i].Gender;
+                userBobj.CreatedAt = users[i].CreatedAt;
+                userBobj.MaritalStatus = users[i].MaritalStatus;
+                userBobj.Occupation = users[i].Occupation;
+                userBobj.Education = users[i].Education;
+                userBobj.Place = users[i].Place;
+                userBobj.TextPosts = userTextPostBobjs;
+                userBobj.PollPosts = userPollPostBobjs;
+                userBobj.FollowersId = followersId;
+                userBobj.FollowingsId = followingsId;
+
+                userBobjs.Add(userBobj);
+            }
+
+            return userBobjs;
+        }
         
     }
 }

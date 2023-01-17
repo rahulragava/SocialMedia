@@ -12,6 +12,6 @@ namespace SocialMedia.DataSet.DataSetInterface
         void AddPost(Post post);
         void RemovePost(Post post);
         List<Post> RetrievePostList();
-        void UpdatePost(int postAt, Post post);
+        void UpdatePost(Post post);
     }
 }

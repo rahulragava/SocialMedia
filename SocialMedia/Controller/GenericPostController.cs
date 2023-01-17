@@ -278,6 +278,7 @@ namespace SocialMedia.Controller
                 var selectedTextPost = _commonPostView.GetUserSelectedPostToRemove(_user.TextPosts);
                 _postManager.RemovePost(selectedTextPost);
                 _commonPostView.SuccessfullyWorkDoneMessage("Removed");
+                LabelManager.Instance.RemoveLabelByPostId(selectedTextPost.Id);
                 var removedPostIndex = _user.TextPosts.FindIndex(textPost => textPost.Id == selectedTextPost.Id);
                 _user.TextPosts.RemoveAt(removedPostIndex);
                 _backToPostController();
@@ -294,6 +295,7 @@ namespace SocialMedia.Controller
             {
                 var selectedPollPost = _commonPostView.GetUserSelectedPostToRemove(_user.PollPosts);
                 _postManager.RemovePost(selectedPollPost);
+                LabelManager.Instance.RemoveLabelByPostId(selectedPollPost.Id);
                 var removedPostIndex = _user.PollPosts.FindIndex(pollPost => pollPost.Id == selectedPollPost.Id);
                 _user.PollPosts.RemoveAt(removedPostIndex);
                 _commonPostView.SuccessfullyWorkDoneMessage("Removed");

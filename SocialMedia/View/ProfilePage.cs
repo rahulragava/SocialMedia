@@ -184,7 +184,7 @@ namespace SocialMedia.View
 
         public int GetUserChoiceOfReaction()
         {
-            "1.Add reaction".PrintLine();
+            "1. Add reaction".PrintLine();
             "2. Remove reaction".PrintLine();
             "3. profile menu".PrintLine();
             var userChoice = InputHelper.UserInputChoice(3);
@@ -272,7 +272,7 @@ namespace SocialMedia.View
                 string voted = string.Concat(Enumerable.Repeat("0 ", (int)selectedPercent / 10));
                 string unvoted = string.Concat(Enumerable.Repeat("X ", totalStar - (int)selectedPercent / 10));
 
-                $"{choice.Choice}       ===> { voted }{ unvoted } | { selectedPercent } %".PrintLine();
+                $"{choice.Choice}         ===> { voted }{ unvoted } | { selectedPercent } %".PrintLine();
             }
             "".PrintLine();
             InputHelper.ResetConsoleColor();
@@ -301,7 +301,7 @@ namespace SocialMedia.View
             foreach (var comment in postBobj.Comments)
             {
                 $"  {new string(' ', comment.Depth)} {index}. {comment.Content}".PrintLine();
-                $"  {new string(' ', comment.Depth + 5)} - ( {UserManager.Instance.GetNonNullUserBObj(comment.CommentedBy).UserName}.  {(DateTime.Now - comment.CommentedAt)} ago )".PrintLine();
+                $"  {new string(' ', comment.Depth + 5)} - ( {UserManager.Instance.GetNonNullUserBObj(comment.CommentedBy).UserName}.  {(DateTime.Now - comment.CommentedAt).Days} days ago )".PrintLine();
                 //var IdNumber = int.Parse(comment.Id.Substring(2));
                 commentIds.Add(comment.Id);
                 index++;
@@ -373,7 +373,6 @@ namespace SocialMedia.View
             "".PrintLine();
             "1. select the user to go to their profile".PrintLine();
             "2.Back to searched user profile ".PrintLine();
-            "Enter your choice : ".PrintLine();
             var userChoice = InputHelper.UserInputChoice(2);
             switch (userChoice)
             {
@@ -387,11 +386,25 @@ namespace SocialMedia.View
 
         }
 
-        internal void UserCantFollowThemselfMessage()
+        public void UserCantFollowThemselfMessage()
         {
             "you cannot follow/unfollow yourself".PrintLine();
             "press any number to get back".PrintLine();
             var userChoice = InputHelper.GetPositiveInt();
+        }
+
+        public void NoFollowingsForUserMessage()
+        {
+            "There is no followings for the user".PrintLine();
+            "press Any number to go back to profile menu".PrintLine();
+            InputHelper.GetPositiveInt();
+        }
+
+        public void NoFollowersForUserMessage()
+        {
+            "There is no followings for the user".PrintLine();
+            "press Any number to go back to profile menu".PrintLine();
+            InputHelper.GetPositiveInt();
         }
     }
 }

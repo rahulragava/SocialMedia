@@ -73,7 +73,7 @@ namespace SocialMedia.Manager
 
         public void RemoveComment(CommentBObj comment)
         {
-            if (comment.Reactions != null && comment.Reactions.Count > 0)
+            if (comment.Reactions != null && comment.Reactions.Any())
                 _reactionManager.RemoveReactions(comment.Reactions);
             var entityComment = ConvertCommentBObjToEntity(comment);
             _commentSet.RemoveComment(entityComment);

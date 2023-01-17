@@ -131,7 +131,7 @@ namespace SocialMedia.Manager
         public void RemovePost(PostBObj postBObj)
         {
             var post = ConvertBObjToEntityModel(postBObj);
-            if (post is PollPostBObj)
+            if (post is PollPost)
             {
                 var pollPostBObj = postBObj as PollPostBObj;
                 var pollPost = post as PollPost;
@@ -139,22 +139,21 @@ namespace SocialMedia.Manager
                 _postSet.RemovePost(pollPost);
 
             }
-            else if (post is TextPostBObj)
+            else if (post is TextPost)
             {
                 var textPost = post as TextPost;
                 _postSet.RemovePost(textPost);
             }
-            if (postBObj.Reactions != null && postBObj.Reactions.Count > 0)
+            if (postBObj.Reactions != null && postBObj.Reactions.Any())
                 _reactionManager.RemoveReactions(postBObj.Reactions);
-            if (postBObj.Comments != null)
+            if (postBObj.Comments != null && postBObj.Comments.Any())
                 _commentManager.RemoveComments(postBObj.Comments);
         }
 
         public void EditPost(PostBObj postBObj)
         {
-            int postAt = GetPostBObjs().Where(post => post is TextPostBObj).ToList().FindIndex(post => post.Id == postBObj.Id);
             var editedPost = ConvertBObjToEntityModel(postBObj);
-            _postSet.UpdatePost(postAt, editedPost);
+            _postSet.UpdatePost(editedPost);
         }
 
         public PostBObj GetPost(string postId)

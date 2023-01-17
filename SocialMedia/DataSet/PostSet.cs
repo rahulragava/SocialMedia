@@ -24,7 +24,9 @@ namespace SocialMedia.DataSet
         {
             if (post != null)
             {
-                _postSet.Remove(post);
+
+                _postSet.Remove(_postSet.First(postItem => postItem.Id == post.Id));
+                
             }
         }
 
@@ -33,11 +35,14 @@ namespace SocialMedia.DataSet
             return _postSet;
         }
 
-        public void UpdatePost(int index, Post post)
+        public void UpdatePost(Post post)
         {
+            var postToBeUpdated = _postSet.Single(p => post.Id == p.Id);
+            
+            var index = _postSet.IndexOf(postToBeUpdated);
             if (post != null && (index >= 0 && index < _postSet.Count))
             {
-                _postSet[index] = post;
+                 _postSet[index] = post;
             }
         }
     }
