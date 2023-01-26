@@ -26,6 +26,7 @@ namespace SocialMedia.View
 
         public (string, string) CreateLabelPage(List<string> postTitles,List<string>labelNames)
         {
+            InputHelper.ClearConsole();
             "choose a label to Add".PrintLine();
             var index = 1;
             foreach (var uniqueName in labelNames)
@@ -33,10 +34,10 @@ namespace SocialMedia.View
                 $"{index} {uniqueName}".PrintLine();
                 index++;
             }
-            $"{index} create custome label".PrintLine();
+            $"{index} create customer label".PrintLine();
 
             var userChoice = InputHelper.UserInputChoice(labelNames.Count+1);
-            string userChoiceForLabelName = string.Empty;
+            string userChoiceForLabelName;
             if(userChoice == index)
             {
                 "Enter the name for the label : ".PrintLine();
@@ -79,10 +80,9 @@ namespace SocialMedia.View
             var userSelectedLabel = uniqueLabelList[userChoice - 1];
             List<PostBObj> posts = UserManager.Instance.GetUserPostBObjs(ApplicationController.Instance.User.Id);
             List<Label> userLabel = new List<Label>();
-            for(int i=0; i < posts.Count; i++)
+            foreach (var post in posts)
             {
-
-                var userLabels = userSelectedLabel.Where(l => l.PostId == posts[i].Id).ToList();
+                var userLabels = userSelectedLabel.Where(l => l.PostId == post.Id).ToList();
                 foreach (var label in userLabels)
                 {
                     userLabel.Add(label);

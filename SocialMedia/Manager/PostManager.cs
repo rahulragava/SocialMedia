@@ -22,10 +22,7 @@ namespace SocialMedia.Manager
                 {
                     lock (_padlock)
                     {
-                        if (_postManager == null)
-                        {
-                            _postManager = new PostManager();
-                        }
+                        _postManager ??= new PostManager();
                     }
                 }
                 return _postManager;
@@ -182,28 +179,27 @@ namespace SocialMedia.Manager
             List<CommentBObj> commentBobjs = _commentManager.GetCommentBObjs();
             List<Post> posts = _postSet.RetrievePostList();            
             List<PollChoiceBObj> pollChoices = _pollChoiceManager.GetPollChoices();
-            PostBObj postBObj;
 
-            for (int i = 0; i < posts.Count; i++)
+            foreach (var post in posts)
             {
-                var postCommentBObjs = commentBobjs.Where((commentBobj) => commentBobj.PostId == posts[i].Id).ToList();
-                List<CommentBObj> sortedCommentBobjs = GetSortedComments(postCommentBObjs);
-                var postReactions = reactions.Where((reaction) => (reaction.ReactionOnId == posts[i].Id)).ToList();
+                var postCommentBObjs = commentBobjs.Where((commentBobj) => commentBobj.PostId == post.Id).ToList();
+                var sortedCommentBobjs = GetSortedComments(postCommentBObjs);
+                var postReactions = reactions.Where((reaction) => (reaction.ReactionOnId == post.Id)).ToList();
 
-                postBObj = (posts[i] is TextPost) ? new TextPostBObj() : new PollPostBObj();
+                PostBObj postBObj = (post is TextPost) ? new TextPostBObj() : new PollPostBObj();
 
-                postBObj.Id = posts[i].Id;
-                postBObj.Title = posts[i].Title;
-                postBObj.PostedBy = posts[i].PostedBy;
-                postBObj.CreatedAt = posts[i].CreatedAt;
-                postBObj.LastModifiedAt = posts[i].LastModifiedAt;
+                postBObj.Id = post.Id;
+                postBObj.Title = post.Title;
+                postBObj.PostedBy = post.PostedBy;
+                postBObj.CreatedAt = post.CreatedAt;
+                postBObj.LastModifiedAt = post.LastModifiedAt;
                 postBObj.Comments = sortedCommentBobjs;
                 postBObj.Reactions = postReactions;
 
                 if(postBObj is TextPostBObj)
                 {
                     TextPostBObj textPostBObj = postBObj as TextPostBObj;
-                    TextPost textPost = posts[i] as TextPost;
+                    TextPost textPost = post as TextPost;
 
                     textPostBObj.Content = textPost.Content;
                     postBObjs.Add(textPostBObj);
@@ -212,9 +208,9 @@ namespace SocialMedia.Manager
                 else if(postBObj is PollPostBObj)
                 {
                     PollPostBObj pollPostBObj = postBObj as PollPostBObj;
-                    PollPost pollPost = posts[i] as PollPost;
+                    PollPost pollPost = post as PollPost;
 
-                    var choices = pollChoices.Where((choice) => choice.PostId == posts[i].Id).ToList();
+                    var choices = pollChoices.Where((choice) => choice.PostId == post.Id).ToList();
                     pollPostBObj.Choices = choices;
                     pollPostBObj.Question = pollPost.Question;
                     postBObjs.Add(pollPostBObj);
@@ -234,10 +230,10 @@ namespace SocialMedia.Manager
             {
                 sortedComments.Add(comment);
                 comment.Depth = 0;
-                RecusiveSort(comment.Id, 1);
+                RecursiveSort(comment.Id, 1);
             }
 
-            void RecusiveSort(string id, int depth)
+            void RecursiveSort(string id, int depth)
             {
                 List<CommentBObj> childComments = comments.Where(x => x.ParentCommentId == id).OrderBy(x => x.CommentedAt).ToList();
 
@@ -245,7 +241,7 @@ namespace SocialMedia.Manager
                 {
                     sortedComments.Add(comment);
                     comment.Depth = depth;
-                    RecusiveSort(comment.Id, depth + 1);
+                    RecursiveSort(comment.Id, depth + 1);
                 }
 
             }

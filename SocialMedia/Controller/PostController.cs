@@ -12,7 +12,7 @@ namespace SocialMedia.Controller
         GenericPostController _genericPostController;
         //TextPostController _textPostController;
         LabelController _labelController;
-        Action _BackToHomePageController;
+        Action _backToHomePageController;
 
         private PostController()
         {
@@ -27,19 +27,16 @@ namespace SocialMedia.Controller
                 {
                     lock (_lock)
                     {
-                        if(_instance == null)
-                        {
-                            _instance = new PostController();
-                        }
+                        _instance ??= new PostController();
                     }
                 }
                 return _instance;
             }
         }
 
-        public void Initialize(Action BackToHomePageController)
+        public void Initialize(Action backToHomePageController)
         {
-            _BackToHomePageController = BackToHomePageController;
+            _backToHomePageController = backToHomePageController;
             _postPage = new PostPage();
             InitiatePostController();
         }
@@ -63,7 +60,7 @@ namespace SocialMedia.Controller
                     break;
 
                 case 3:
-                    _BackToHomePageController?.Invoke();
+                    _backToHomePageController?.Invoke();
                     break;
             }
         }

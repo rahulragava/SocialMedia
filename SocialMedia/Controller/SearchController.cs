@@ -1,24 +1,18 @@
 ﻿using SocialMedia.Manager;
-using SocialMedia.Model.BusinessModel;
 using SocialMedia.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.Controller
 {
     public class SearchController
     {
-        private static readonly object padlock = new object();
-        private static SearchController instance;
+        private static readonly object _padlock = new object();
+        private static SearchController _instance;
         
-        SearchPage searchPage;
+        SearchPage _searchPage;
         ProfileController _profileController;
-        UserManager _userManager = UserManager.Instance;
+        readonly UserManager _userManager = UserManager.Instance;
 
-        Action _BackToHomePageController;
+        Action _backToHomePageController;
 
         SearchController()
         {
@@ -28,30 +22,27 @@ namespace SocialMedia.Controller
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (instance == null)
-                        {
-                            instance = new SearchController();
-                        }
+                        _instance ??= new SearchController();
                     }
                 }
-                return instance;
+                return _instance;
             }
         }
 
-        public void InitiateSearchController(Action BackToHomePageController)
+        public void InitiateSearchController(Action backToHomePageController)
         {
-            _BackToHomePageController = BackToHomePageController;
-            searchPage = new SearchPage();
+            _backToHomePageController = backToHomePageController;
+            _searchPage = new SearchPage();
             SearchControllerInteraction();
         }
 
         public void SearchControllerInteraction()
         {
-            var userChoice = searchPage.InitiateSearchPageView();
+            var userChoice = _searchPage.InitiateSearchPageView();
             
             switch (userChoice)
             {
@@ -60,7 +51,7 @@ namespace SocialMedia.Controller
                     break;
 
                 case 2: // back to HomePage
-                    _BackToHomePageController?.Invoke();
+                    _backToHomePageController?.Invoke();
                     break;
             }
             
@@ -69,7 +60,7 @@ namespace SocialMedia.Controller
         public void Search()
         {
             var userNames = _userManager.GetUserNames();
-            var userName = searchPage.SearchByName(userNames);
+            var userName = _searchPage.SearchByName(userNames);
             
             var searchedUser = _userManager.GetUserBObjWithoutId(userName);
             Action initiateSearchController = SearchControllerInteraction;
@@ -80,7 +71,7 @@ namespace SocialMedia.Controller
             }
             else
             {
-                searchPage.UserNotFoundMessage();
+                _searchPage.UserNotFoundMessage();
                 SearchControllerInteraction();
             }
         

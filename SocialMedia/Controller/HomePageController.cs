@@ -5,12 +5,12 @@ namespace SocialMedia.Controller
     public class HomePageController
     {
 
-        private static readonly object padlock = new object();
-        private static HomePageController instance;
-        SearchController searchController;
-        PostController postController;
+        private static readonly object _padlock = new object();
+        private static HomePageController _instance;
+        SearchController _searchController;
+        PostController _postController;
         private HomePage _homePage;
-        Action _BackToApplicationController;
+        Action _backToApplicationController;
 
         HomePageController()
         {
@@ -20,24 +20,21 @@ namespace SocialMedia.Controller
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (instance == null)
-                        {
-                            instance = new HomePageController();
-                        }
+                        _instance ??= new HomePageController();
                     }
                 }
-                return instance;
+                return _instance;
             }
         }
         
-        public void InitiateHomePageController(Action BackToApplicationController)
+        public void InitiateHomePageController(Action backToApplicationController)
         {
             _homePage = new HomePage();
-            _BackToApplicationController = BackToApplicationController;
+            _backToApplicationController = backToApplicationController;
             HomePageControllerInteraction();
         }
 
@@ -45,20 +42,20 @@ namespace SocialMedia.Controller
         {
             var userHomePageChoice = _homePage.InitiateHomePage();
 
-            Action initiateHomePageController = HomePageControllerInteraction;
+            var initiateHomePageController = HomePageControllerInteraction;
 
             switch (userHomePageChoice)
             {
                 case 1: // search
-                    searchController = SearchController.GetInstance;
-                    searchController.InitiateSearchController(initiateHomePageController);
+                    _searchController = SearchController.GetInstance;
+                    _searchController.InitiateSearchController(initiateHomePageController);
                     break;
                 case 2: //Post
-                    postController = PostController.GetInstance;
-                    postController.Initialize(initiateHomePageController);
+                    _postController = PostController.GetInstance;
+                    _postController.Initialize(initiateHomePageController);
                     break;
                 case 3: // exit
-                    _BackToApplicationController(); // use delegate
+                    _backToApplicationController(); // use delegate
                     break;
             }
         }

@@ -167,7 +167,7 @@ namespace SocialMedia.View
 
         public int GetReactionEmoteIconCount(List<Reaction> reactions, ReactionType reactionType)
         {
-            var reactionCount = reactions.Where(reaction => reaction.reactionType == reactionType).Count();
+            var reactionCount = reactions.Where(reaction => reaction.ReactionType == reactionType).Count();
 
             return reactionCount;
         }
@@ -301,7 +301,7 @@ namespace SocialMedia.View
             foreach (var comment in postBobj.Comments)
             {
                 $"  {new string(' ', comment.Depth)} {index}. {comment.Content}".PrintLine();
-                $"  {new string(' ', comment.Depth + 5)} - ( {UserManager.Instance.GetNonNullUserBObj(comment.CommentedBy).UserName}.  {(DateTime.Now - comment.CommentedAt).Days} days ago )".PrintLine();
+                $"  {new string(' ', comment.Depth + 5)} - ( {UserManager.Instance.GetUserBObj(comment.CommentedBy).UserName}.  {(DateTime.Now - comment.CommentedAt).Days} days ago )".PrintLine();
                 //var IdNumber = int.Parse(comment.Id.Substring(2));
                 commentIds.Add(comment.Id);
                 index++;

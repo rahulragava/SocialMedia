@@ -7,17 +7,17 @@ namespace SocialMedia.Controller
 {
     public class ProfileController
     {
-        private static readonly object padlock = new object();
-        private static ProfileController instance;
+        private static readonly object _padlock = new object();
+        private static ProfileController _instance;
 
         string _searchedUserId;
         UserBObj _searchedUser;
         UserBObj _viewingUser;
 
         ProfilePage _profilePage;
-        Action _BackToSearchController;
-        ReactionManager _reactionManager = ReactionManager.Instance;
-        CommentManager _commentManager = CommentManager.Instance;
+        Action _backToSearchController;
+        readonly ReactionManager _reactionManager = ReactionManager.Instance;
+        readonly CommentManager _commentManager = CommentManager.Instance;
 
 
         ProfileController()
@@ -28,23 +28,20 @@ namespace SocialMedia.Controller
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (instance == null)
-                        {
-                            instance = new ProfileController();
-                        }
+                        _instance ??= new ProfileController();
                     }
                 }
-                return instance;
+                return _instance;
             }
         }
 
-        public void Initialize(Action BackToSearchController, string searchedUserId) 
+        public void Initialize(Action backToSearchController, string searchedUserId) 
         {
-            _BackToSearchController = BackToSearchController;
+            _backToSearchController = backToSearchController;
             _searchedUserId = searchedUserId;
             _profilePage = new ProfilePage();
             InitiateProfileController();
@@ -52,7 +49,7 @@ namespace SocialMedia.Controller
 
         public void InitiateProfileController() 
         {
-            _searchedUser = UserManager.Instance.GetNonNullUserBObj(_searchedUserId);
+            _searchedUser = UserManager.Instance.GetUserBObj(_searchedUserId);
             _viewingUser = ApplicationController.Instance.User;
 
             var userChoice = _profilePage.InitiateProfilePage(_searchedUser);
@@ -94,16 +91,15 @@ namespace SocialMedia.Controller
             }
             else
             {
-                for (int i = 0; i < _searchedUser.FollowingsId.Count; i++)
+                foreach (var followingId in _searchedUser.FollowingsId)
                 {
-                    followings.Add(userManager.GetNonNullUserBObj(_searchedUser.FollowingsId[i]));
-
+                    followings.Add(userManager.GetUserBObj(followingId));
                 }
                 var userNames = followings.Select(following => following.UserName).ToList();
                 (int userSelectedIndex, bool isSelectedUserProfile) = _profilePage.ShowFollowersOrFollowingsList(userNames);
                 if (isSelectedUserProfile)
                 {
-                    Initialize(_BackToSearchController, followings[userSelectedIndex - 1].Id);
+                    Initialize(_backToSearchController, followings[userSelectedIndex - 1].Id);
                 }
                 else
                 {
@@ -125,16 +121,15 @@ namespace SocialMedia.Controller
             }
             else
             {
-                for (int i = 0; i < _searchedUser.FollowersId.Count; i++)
+                foreach (var followerId in _searchedUser.FollowersId)
                 {
-                    followers.Add(userManager.GetNonNullUserBObj(_searchedUser.FollowersId[i]));
-
+                    followers.Add(userManager.GetUserBObj(followerId));
                 }
                 var userNames = followers.Select(follower => follower.UserName).ToList();
                 (int userSelectedIndex, bool isSelectedUserProfile) = _profilePage.ShowFollowersOrFollowingsList(userNames);
                 if (isSelectedUserProfile)
                 {
-                    Initialize(_BackToSearchController, followers[userSelectedIndex - 1].Id);
+                    Initialize(_backToSearchController, followers[userSelectedIndex - 1].Id);
                 }
                 else
                 {
@@ -368,10 +363,12 @@ namespace SocialMedia.Controller
         private void AddReaction(PostBObj postBobj)
         {
             var userReaction = _profilePage.GetUserReaction();
-            var reaction = new Reaction();
-            reaction.ReactedBy = _viewingUser.Id;
-            reaction.ReactionOnId = postBobj.Id;
-            reaction.reactionType = userReaction;
+            var reaction = new Reaction
+            {
+                ReactedBy = _viewingUser.Id,
+                ReactionOnId = postBobj.Id,
+                ReactionType = userReaction
+            };
             var isViewingUserReacted = postBobj.Reactions.Exists(reaction => reaction.ReactedBy == _viewingUser.Id);
             if (isViewingUserReacted)
             {
@@ -424,14 +421,13 @@ namespace SocialMedia.Controller
         private void AddCommentReaction(CommentBObj commentBobj)
         {
             var userReaction = _profilePage.GetUserReaction();
-            var reaction = new Reaction();
-            reaction.ReactedBy = _viewingUser.Id;
-            reaction.ReactionOnId = commentBobj.Id;
-            reaction.reactionType = userReaction;
-            if(commentBobj.Reactions == null )
+            var reaction = new Reaction
             {
-                commentBobj.Reactions = new List<Reaction>();   
-            }
+                ReactedBy = _viewingUser.Id,
+                ReactionOnId = commentBobj.Id,
+                ReactionType = userReaction
+            };
+            commentBobj.Reactions ??= new List<Reaction>();
             //commentBobj.Reactions.Add(reaction);
             _reactionManager.AddReaction(reaction);
             _profilePage.SuccessfullyWorkDoneMessage("Added");
@@ -440,7 +436,7 @@ namespace SocialMedia.Controller
 
         private void BackToSearchController()
         {
-            _BackToSearchController?.Invoke();
+            _backToSearchController?.Invoke();
         }
     }
 }

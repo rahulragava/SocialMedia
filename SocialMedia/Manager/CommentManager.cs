@@ -25,10 +25,7 @@ namespace SocialMedia.Manager
                 {
                     lock (_padlock)
                     {
-                        if (_commentManager == null)
-                        {
-                            _commentManager = new CommentManager();
-                        }
+                        _commentManager ??= new CommentManager();
                     }
                 }
                 return _commentManager;

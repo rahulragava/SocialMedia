@@ -1,9 +1,7 @@
-﻿using SocialMedia;
-using SocialMedia.Controller;
+﻿using SocialMedia.Controller;
 using SocialMedia.Manager;
-using System;
 
-namespace ConsoleApp
+namespace SocialMedia
 {
     public class Program
     {

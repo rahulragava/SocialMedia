@@ -21,17 +21,14 @@ namespace SocialMedia.Manager
                 {
                     lock (_padlock)
                     {
-                        if (_userCredentialManager == null)
-                        {
-                            _userCredentialManager = new UserCredentialManager();
-                        }
+                        _userCredentialManager ??= new UserCredentialManager();
                     }
                 }
                 return _userCredentialManager;
             }
         }
 
-        IUserCredentialSet _userCredentialSet = new UserCredentialSet();
+        readonly IUserCredentialSet _userCredentialSet = new UserCredentialSet();
 
         public List<UserCredential> GetUserCredentials()
         {

@@ -25,10 +25,7 @@ namespace SocialMedia.Manager
                 {
                     lock (_padlock)
                     {
-                        if (_reactionManager == null)
-                        {
-                            _reactionManager = new ReactionManager();
-                        }
+                        _reactionManager ??= new ReactionManager();
                     }
                 }
                 return _reactionManager;
@@ -58,11 +55,12 @@ namespace SocialMedia.Manager
 
             while (true)
             {
-                for(int i= 0; i < Reactions.Count; i++)
+                foreach (var reaction in Reactions)
                 {
-                    RemoveReaction(Reactions[i]);
+                    RemoveReaction(reaction);
                     break;
                 }
+
                 if (Reactions.Count == 0) break;
             }
             //foreach (var reaction in Reactions)

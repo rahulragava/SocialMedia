@@ -10,8 +10,8 @@ namespace SocialMedia.Model.EntityModel
         public DateTime CreatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
         public string Title { get; set; }
-            
-        public Post()
+
+        protected Post()
         {
             Id = Guid.NewGuid().ToString();
         }

@@ -7,8 +7,8 @@ namespace SocialMedia.Manager
 {
     public sealed class PollChoiceManager
     {
-        private static PollChoiceManager pollChoiceManager = null;
-        private static readonly object padlock = new object();
+        private static PollChoiceManager _pollChoiceManager = null;
+        private static readonly object _padlock = new object();
 
         PollChoiceManager()
         {
@@ -18,28 +18,25 @@ namespace SocialMedia.Manager
         {
             get
             {
-                if (pollChoiceManager == null)
+                if (_pollChoiceManager == null)
                 {
-                    lock (padlock)
+                    lock (_padlock)
                     {
-                        if (pollChoiceManager == null)
-                        {
-                            pollChoiceManager = new PollChoiceManager();
-                        }
+                        _pollChoiceManager ??= new PollChoiceManager();
                     }
                 }
-                return pollChoiceManager;
+                return _pollChoiceManager;
             }
         }
 
-        IPollChoiceSet pollChoiceSet = new PollChoiceSet();
-        IUserPollChoiceSelectionSet userPollChoiceSelectionSet = new UserPollChoiceSelectionSet();
+        readonly IPollChoiceSet _pollChoiceSet = new PollChoiceSet();
+        readonly IUserPollChoiceSelectionSet _userPollChoiceSelectionSet = new UserPollChoiceSelectionSet();
 
         public List<PollChoiceBObj> GetPollChoices()
         {
             List<PollChoiceBObj> pollChoiceBobjs = new List<PollChoiceBObj>();
-            List<PollChoice> pollChoices = pollChoiceSet.RetrievePollChoiceList();
-            List<UserPollChoiceSelection> userPollChoiceSelections = userPollChoiceSelectionSet.RetrievePollChoiceSelectionList();
+            List<PollChoice> pollChoices = _pollChoiceSet.RetrievePollChoiceList();
+            List<UserPollChoiceSelection> userPollChoiceSelections = _userPollChoiceSelectionSet.RetrievePollChoiceSelectionList();
             
 
             for (int i = 0; i < pollChoices.Count; i++)
@@ -63,30 +60,32 @@ namespace SocialMedia.Manager
         public void AddPollChoice(PollChoiceBObj pollChoice)
         {
             var pollChoiceEntityModel = ConvertPollChoiceBobjToEntityModel(pollChoice);
-            pollChoiceSet.AddPollChoice(pollChoiceEntityModel);
+            _pollChoiceSet.AddPollChoice(pollChoiceEntityModel);
         }
 
         public PollChoice ConvertPollChoiceBobjToEntityModel(PollChoiceBObj pollChoiceBobj)
         {
-            PollChoice pollChoice = new PollChoice();
-            pollChoice.Id = pollChoiceBobj.Id;
-            pollChoice.Choice = pollChoiceBobj.Choice;
-            pollChoice.PostId = pollChoiceBobj.PostId;
+            PollChoice pollChoice = new PollChoice
+            {
+                Id = pollChoiceBobj.Id,
+                Choice = pollChoiceBobj.Choice,
+                PostId = pollChoiceBobj.PostId
+            };
 
             return pollChoice;
         }
         public void RemovePollChoice(PollChoice pollChoice)
         {
-            pollChoiceSet.RemovePollChoice(pollChoice);
+            _pollChoiceSet.RemovePollChoice(pollChoice);
         }
 
         public void AddPollChoices(List<PollChoiceBObj> pollChoiceBobjList)
         {
             foreach (var pollChoice in pollChoiceBobjList)
             {
-                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Count > 0)
+                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Any())
                 {
-                    userPollChoiceSelectionSet.AddUserPollChoiceSelections(pollChoice.ChoiceSelectedUsers);
+                    _userPollChoiceSelectionSet.AddUserPollChoiceSelections(pollChoice.ChoiceSelectedUsers);
                 }
                 AddPollChoice(pollChoice);
             }
@@ -97,8 +96,8 @@ namespace SocialMedia.Manager
             
             foreach(var pollChoice in choices)
             {
-                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Count > 0)
-                    userPollChoiceSelectionSet.RemovePollChoiceSelections(pollChoice.ChoiceSelectedUsers);
+                if(pollChoice.ChoiceSelectedUsers != null && pollChoice.ChoiceSelectedUsers.Any())
+                    _userPollChoiceSelectionSet.RemovePollChoiceSelections(pollChoice.ChoiceSelectedUsers);
                 RemovePollChoice(ConvertPollChoiceBobjToEntityModel(pollChoice));
             }
         }
@@ -107,7 +106,7 @@ namespace SocialMedia.Manager
         {
             if (userSelectionPollChoice != null)
             {
-                userPollChoiceSelectionSet.AddUserPollChoiceSelection(userSelectionPollChoice);
+                _userPollChoiceSelectionSet.AddUserPollChoiceSelection(userSelectionPollChoice);
             }
         }
     }

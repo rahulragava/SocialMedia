@@ -24,19 +24,16 @@ namespace SocialMedia.Controller
                 {
                     lock (_padLock)
                     {
-                        if(_labelController == null)
-                        {
-                            _labelController = new LabelController();
-                        }
+                        _labelController ??= new LabelController();
                     }
                 }
                 return _labelController;
             }
         }
 
-        public void Initialize(Action InitiatePostController)
+        public void Initialize(Action initiatePostController)
         {
-            _backToPostController = InitiatePostController;
+            _backToPostController = initiatePostController;
             _labelPage = new LabelPage();
             InitiateLabelController();
         }
@@ -83,12 +80,12 @@ namespace SocialMedia.Controller
             List<string> postTitles = posts.Select(posts => posts.Title).ToList();
 
             (string name, string postTitle) = _labelPage.CreateLabelPage(postTitles, labelNames);
-            var postId = posts.Single(post => post.Title == postTitle).Id;
+            var postId = posts.First(post => post.Title == postTitle).Id;
             var alreadyExistedLabel = LabelManager.Instance.GetLabels().Where(l => l.Name == name && l.PostId == postId);
             if (!alreadyExistedLabel.Any())
             {
                 label.Name = name;
-                label.PostId = posts.Single(post => post.Title == postTitle).Id;
+                label.PostId = postId;
                 LabelManager.Instance.AddLabel(label);
             }
             else

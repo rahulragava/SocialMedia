@@ -27,10 +27,7 @@ namespace SocialMedia.Controller
                 {
                     lock (_padLock)
                     {
-                        if(_applicationInstance == null)
-                        {
-                            _applicationInstance = new ApplicationController();
-                        }
+                        _applicationInstance ??= new ApplicationController();
                     }
                 }
                 return _applicationInstance;

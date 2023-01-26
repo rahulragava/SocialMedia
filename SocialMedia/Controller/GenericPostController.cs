@@ -89,49 +89,48 @@ namespace SocialMedia.Controller
             {
                 case 1: // textPost
                     var textPostBObj = postBObj as TextPostBObj;
-                    textPostBObj.Content = _commonPostView.GetPostContent();
-                    _postManager.AddPost(postBObj);
-                    if (_user.TextPosts != null)
+                    if (textPostBObj != null)
                     {
-                        _user.TextPosts.Add(textPostBObj);
-                    }
-                    else
-                    {
-                        _user.TextPosts = new List<TextPostBObj>
+                        textPostBObj.Content = _commonPostView.GetPostContent();
+                        _postManager.AddPost(postBObj);
+                        if (_user.TextPosts != null)
                         {
-                            textPostBObj
-                        };
+                            _user.TextPosts.Add(textPostBObj);
+                        }
+                        else
+                        {
+                            _user.TextPosts = new List<TextPostBObj>
+                            {
+                                textPostBObj
+                            };
+                        }
                     }
+
                     break;
                 case 2:
                     (string question, List<string> options) = _commonPostView.GetPostQuestionAndChoices();
                     var pollPostBObj = postBObj as PollPostBObj;
-                    pollPostBObj.Question = question;
+                    if (pollPostBObj != null)
+                    {
+                        pollPostBObj.Question = question;
 
-                    var pollChoiceBobjList = new List<PollChoiceBObj>();
-                    for (int i = 0; i < options.Count; i++)
-                    {
-                        var pollChoice = new PollChoiceBObj
-                        {
-                            PostId = pollPostBObj.Id,
-                            Choice = options[i]
-                        };
-                        pollChoiceBobjList.Add(pollChoice);
+                        var pollChoiceBobjList = options.Select(option => new PollChoiceBObj { PostId = pollPostBObj.Id, Choice = option }).ToList();
 
-                    }
-                    pollPostBObj.Choices = pollChoiceBobjList;
-                    _postManager.AddPost(pollPostBObj);
-                    if (_user.PollPosts != null)
-                    {
-                        _user.PollPosts.Add(pollPostBObj);
-                    }
-                    else
-                    {
-                        _user.PollPosts = new List<PollPostBObj>
+                        pollPostBObj.Choices = pollChoiceBobjList;
+                        _postManager.AddPost(pollPostBObj);
+                        if (_user.PollPosts != null)
                         {
-                            pollPostBObj
-                        };
+                            _user.PollPosts.Add(pollPostBObj);
+                        }
+                        else
+                        {
+                            _user.PollPosts = new List<PollPostBObj>
+                            {
+                                pollPostBObj
+                            };
+                        }
                     }
+
                     break;
             }
             _commonPostView.SuccessfullyWorkDoneMessage("Added");

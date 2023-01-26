@@ -1,11 +1,6 @@
 ﻿using SocialMedia.DataSet;
 using SocialMedia.DataSet.DataSetInterface;
 using SocialMedia.Model.EntityModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocialMedia.Manager
 {
@@ -24,10 +19,7 @@ namespace SocialMedia.Manager
                 {
                     lock (_lock)
                     {
-                        if(_labelManager == null)
-                        {
-                            _labelManager = new LabelManager();
-                        }
+                        _labelManager ??= new LabelManager();
                     }
                 }
                 return _labelManager;
@@ -50,15 +42,15 @@ namespace SocialMedia.Manager
             return _labelSet.GetLabels();
         }
 
-        public List<string> GetLabelByName(string labelName)
-        {
+        //public List<string> GetLabelByName(string labelName)
+        //{
             
-            if (string.IsNullOrEmpty(labelName))
-            {
-                return null;
-            }
-            return _labelSet.GetLabel(labelName);
-        }
+        //    if (string.IsNullOrEmpty(labelName))
+        //    {
+        //        return null;
+        //    }
+        //    return _labelSet.GetLabel(labelName);
+        //}
 
         public List<Label> GetUserLabels(string userId)
         {
